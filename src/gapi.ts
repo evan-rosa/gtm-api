@@ -3,8 +3,14 @@
 const {google} = require('googleapis');
 const path = require('path');
 const {authenticate} = require('@google-cloud/local-auth');
-
 const gtm = google.tagmanager('v2');
+import * as dotenv from 'dotenv';
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
 
 const scope = ['https://www.googleapis.com/auth/tagmanager.readonly',
 'https://www.googleapis.com/auth/tagmanager.manage.accounts',
@@ -13,6 +19,11 @@ const scope = ['https://www.googleapis.com/auth/tagmanager.readonly',
 'https://www.googleapis.com/auth/tagmanager.edit.containerversions',
 'https://www.googleapis.com/auth/tagmanager.manage.users',
 'https://www.googleapis.com/auth/tagmanager.publish',]
+
+dotenv.config();
+
+const gtmAcctID = process.env.GTM_ACCOUNT_ID;
+const gtmContainerID = process.env.GTM_CONTAINER_ID;
 
 async function runSample() {
 
@@ -24,68 +35,151 @@ async function runSample() {
         });
         google.options({auth});
 
-        //List GTM Accounts
-        const listAccounts = await gtm.accounts.list();
-        console.log(listAccounts.data.account);
-
-        //Get GTM Accounts
-        const getAccounts = await gtm.accounts.get({
-                 path: 'accounts/3327262173',
-               });
-        console.log(getAccounts.data);
-
-        //List GTM Containers
-        /*
-        const listContainers = await gtm.accounts.containers.list({parent: 'accounts/3327262173'});
-        console.log(listContainers.data);
-//      const res =          await gtm.accounts.containers.versions.get({
-        const listVersions = await gtm.accounts.containers.versions.get({
-            containerVersionId: 'published',
-            path:'accounts/3327262173/containers/11829158/versions/26'
+        
+        //Get GTM Containers
+        const getContainers = await gtm.accounts.containers.get({
+            path: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
         });
-       console.log(listVersions.data);
-         */
+        console.log('--------------------------------------');
+        
+        console.log(getContainers.data);
+        console.log(getContainers.data.accountId);
+        console.log(getContainers.data.containerId);
 
-        //Sets latest version by creating a new version ID and restoring requested version to new version ID.
-        /*
-        const setLatest = await gtm.accounts.containers.versions.set_latest({
-            path:'accounts/3327262173/containers/11829158/versions/26'
-         });
-        console.log('Set lastest GTM version to:');
-        console.log(setLatest.data);
-        */
+        //Create a Workspace called cm-000-ga4
 
         /*
-                const res = await gtm.accounts.containers.workspaces.create({
-                 // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
-                 parent: 'accounts/my-account/containers/my-container',
-                 // Request body metadata
-                 requestBody: {
-                   'accountId': 'my_accountId',
-                   'containerId': 'my_containerId',
-                   'description': 'my_description',
-                   'fingerprint': 'my_fingerprint',
-                   'name': 'cm-000-test',
-                   'path': 'my_path',
-                   'tagManagerUrl': 'my_tagManagerUrl',
-                   'workspaceId': 'my_workspaceId'
-                 },
+        const createWorkspace = await gtm.accounts.containers.workspaces.create({
+            // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
+            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
+            // Request body metadata
+            requestBody: {
+            'name': 'cm-000-ga4',
+            'description': 'workspace for GA4 implementation'
+            },
         });
-        console.log(res.data);
+        console.log('*****************************');
+        
+        console.log(createWorkspace.data);
         */
 
 
+        //Lists Workspaces
+        const listWorkspaces = await gtm.accounts.containers.workspaces.list({
+            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID 
+        });
+        console.log('*******************/////////////////');
+        
+        console.log(listWorkspaces.data);
 
 
+        
+        // Asking which GTM workspace we need to update
+        rl.question('Which GTM workspace ID do you want to edit?', function(gtmCurrentWorkspaceId : any) {
 
-        // Deletes Workspace
+
+                rl.question("What do you want to name your gtm variable?", function(gtmNewVarName: any) {
+
+
+                    rl.close();
+                    const gtmWorkId = `${gtmCurrentWorkspaceId}`;
+                    const gtmNewVar = `${gtmNewVarName}`;
+                
+
+                    const gtmVar = gtm.accounts.containers.workspaces.variables.create({
+                        //need to get workspace IDs in variable to call on parent 
+                        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/' + gtmWorkId,
+                        requestBody: {
+                            'name': gtmNewVar,
+                            'type': 'smm',
+                            'parameter': [
+                                {
+                                'type': 'template',
+                                'key': 'input',
+                                'value': '{{Page Hostname}}'
+                                },
+                                {
+                                'type': 'list',
+                                'key': 'map',
+                                'list': [
+                                {
+                                'type': 'map',
+                                'map': [
+                                    {   
+                                        "type": "template",
+                                        "key": "key",
+                                        "value": "localhost"
+                                        },
+                                        {
+                                        "type": "template",
+                                        "key": "value",
+                                        "value": "G-R4QFJ2JKM6"
+                                    }
+                                ]
+                                },
+                                {
+                                    'type': 'map',
+                                    'map': [
+                                    {   
+                                        "type": "template",
+                                        "key": "key",
+                                        "value": "localhost"
+                                        },
+                                        {
+                                        "type": "template",
+                                        "key": "value",
+                                        "value": "null"
+                                    }
+                                    ]
+                                },
+                                ]
+                                },
+                                {
+                                'type': 'template',
+                                'key': 'defaultValue',
+                                'value': '(not set)'
+                                }
+                            ]
+                        }
+                    })
+                    });
+        });
+     
+
         /*
-        const resDelete = await gtm.accounts.containers.workspaces.delete({
-                // GTM Workspace&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}/workspaces/{workspace_id\}
-                path: 'accounts/3327262173/containers/11829158/workspaces/58',
-            });
-            console.log(resDelete.data);
-            */   
+        //Deletes a Workspace
+        const deleteWorkspace = await gtm.accounts.containers.workspaces.delete({
+            path: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/61' 
+        })
+
+        //list workspaces to console log to verify workspace was deleted
+        console.log('-------------------------------------------------');
+        console.log(listWorkspaces.data);
+        console.log(deleteWorkspace);
+        */
+        
+        
+        
+
+        
+        
+
+        // After creating workspace we need to grab to workspace ID and save it as a const variable
+
+       // const gtmWorkspaceID = //createWorkspace.data.workspaceId;
+       // console.log(null);
+        
+
+        //Creates new GTM workspace variable
+        /*
+        const gtmVar = await gtm.accounts.containers.workspaces.variables.create({
+            //need to get workspace IDs in variable to call on parent 
+            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/' + gtmWorkspaceID,
+        })
+        console.log(gtmVar);
+        */
+        
+
         //  return null;
     } catch (err){
         console.log(err)
