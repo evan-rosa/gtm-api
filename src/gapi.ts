@@ -35,116 +35,118 @@ async function runSample() {
         });
         google.options({auth});
 
-        
-        //Get GTM Containers
-        const getContainers = await gtm.accounts.containers.get({
-            path: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
-        });
-        console.log('--------------------------------------');
-        
-        console.log(getContainers.data);
-        console.log(getContainers.data.accountId);
-        console.log(getContainers.data.containerId);
-
-                
-        rl.question("Is this an existing workspace?", function(answer: string) {
+        rl.question("Is this an existing workspace?", async function(answer: string) {
             const yes:string = 'yes';
             const no: string = 'no';
             if (answer == no){
-                rl.question("What would you like to name this workspace?", function(workspaceName: string) {
-                    rl.question("Please provide a description for this new workspace.", function(description: string) {
-                        const gtmNewWorkspaceName = `${workspaceName}`;
-                        const gtmWorkspaceDescription = `${description}`;
-                        gtm.accounts.containers.workspaces.create({
-                            // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
-                            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
-                            // Request body metadata
-                            requestBody: {
-                            'name': gtmNewWorkspaceName,
-                            'description': gtmWorkspaceDescription
-                            },
-                        });
-                        // Asking which GTM workspace we need to update
-                        rl.question('Which GTM workspace ID do you want to edit?', function(gtmCurrentWorkspaceId : any) {
-
-                            rl.question("What do you want to name your gtm variable?", function(gtmNewVarName: any) {
-
-                                rl.close();
-                                const gtmWorkId = `${gtmCurrentWorkspaceId}`;
-                                const gtmNewVar = `${gtmNewVarName}`;
-                            
-                                //Creates a new GTM lookup variable
-                                const gtmVar = gtm.accounts.containers.workspaces.variables.create({
-                                    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/' + gtmWorkId,
+                rl.question("Do you want to create a new workspace? ", async function name(answer: string) {
+                    if (answer == no){
+                        console.log("Ok, we will not create a new GTM workspace. Closing program, Goodbye.");
+                        process.exit(0);
+                    }
+                    if (answer == yes){
+                        rl.question("What would you like to name this new workspace?", async function(workspaceName: string) {
+                            rl.question("Please provide a description for this new workspace.", async function(description: string) {
+                                const gtmNewWorkspaceName = `${workspaceName}`;
+                                const gtmWorkspaceDescription = `${description}`;
+                                await gtm.accounts.containers.workspaces.create({
+                                    // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
+                                    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
+                                    // Request body metadata
                                     requestBody: {
-                                        'name': gtmNewVar,
-                                        'type': 'smm',
-                                        'parameter': [
-                                            {
-                                            'type': 'template',
-                                            'key': 'input',
-                                            'value': '{{Page Hostname}}'
-                                            },
-                                            {
-                                            'type': 'list',
-                                            'key': 'map',
-                                            'list': [
-                                            {
-                                            'type': 'map',
-                                            'map': [
-                                                {   
-                                                    "type": "template",
-                                                    "key": "key",
-                                                    "value": "localhost"
-                                                    },
-                                                    {
-                                                    "type": "template",
-                                                    "key": "value",
-                                                    "value": "G-R4QFJ2JKM6"
-                                                }
-                                            ]
-                                            },
-                                            {
-                                                'type': 'map',
-                                                'map': [
-                                                {   
-                                                    "type": "template",
-                                                    "key": "key",
-                                                    "value": "localhost"
-                                                    },
-                                                    {
-                                                    "type": "template",
-                                                    "key": "value",
-                                                    "value": "null"
-                                                }
-                                                ]
-                                            },
-                                            ]
-                                            },
-                                            {
-                                            'type': 'template',
-                                            'key': 'defaultValue',
-                                            'value': '(not set)'
-                                            }
-                                        ]
-                                    }
-                                })
+                                    'name': gtmNewWorkspaceName,
+                                    'description': gtmWorkspaceDescription
+                                    },
                                 });
-                    });
-                    }); 
-                });
+                                // Asking which GTM workspace we need to update
+                                rl.question('Which GTM workspace ID do you want to edit?', async function(gtmCurrentWorkspaceId : any) {
+        
+                                    rl.question("What do you want to name your gtm variable?", async function(gtmNewVarName: any) {
+        
+                                        rl.close();
+                                        const gtmWorkId = `${gtmCurrentWorkspaceId}`;
+                                        const gtmNewVar = `${gtmNewVarName}`;
+                                    
+                                        //Creates a new GTM lookup variable
+                                        const gtmVar = await gtm.accounts.containers.workspaces.variables.create({
+                                            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/' + gtmWorkId,
+                                            requestBody: {
+                                                'name': gtmNewVar,
+                                                'type': 'smm',
+                                                'parameter': [
+                                                    {
+                                                    'type': 'template',
+                                                    'key': 'input',
+                                                    'value': '{{Page Hostname}}'
+                                                    },
+                                                    {
+                                                    'type': 'list',
+                                                    'key': 'map',
+                                                    'list': [
+                                                    {
+                                                    'type': 'map',
+                                                    'map': [
+                                                        {   
+                                                            "type": "template",
+                                                            "key": "key",
+                                                            "value": "localhost"
+                                                            },
+                                                            {
+                                                            "type": "template",
+                                                            "key": "value",
+                                                            "value": "G-R4QFJ2JKM6"
+                                                        }
+                                                    ]
+                                                    },
+                                                    {
+                                                        'type': 'map',
+                                                        'map': [
+                                                        {   
+                                                            "type": "template",
+                                                            "key": "key",
+                                                            "value": "localhost"
+                                                            },
+                                                            {
+                                                            "type": "template",
+                                                            "key": "value",
+                                                            "value": "null"
+                                                        }
+                                                        ]
+                                                    },
+                                                    ]
+                                                    },
+                                                    {
+                                                    'type': 'template',
+                                                    'key': 'defaultValue',
+                                                    'value': '(not set)'
+                                                    }
+                                                ]
+                                            }
+                                        })
+                                        });
+                            });
+                            }); 
+                        });
+                    }
+                })
             } else if (answer == yes) {
+                //Lists Workspaces
+                const listWorkspaces = await gtm.accounts.containers.workspaces.list({
+                    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
+                });
+                
+                console.log(listWorkspaces.data);
                 // Asking which GTM workspace we need to update
-                rl.question('Which GTM workspace ID do you want to edit?', function(gtmCurrentWorkspaceId : any) {
+                rl.question('Which GTM workspace ID do you want to edit?', async function(gtmCurrentWorkspaceId : any) {
 
-                    rl.question("What do you want to name your gtm variable?", function(gtmNewVarName: any) {
+                    rl.question("What do you want to name your gtm variable?", async function(gtmNewVarName: any) {
 
                         rl.close();
                         const gtmWorkId = `${gtmCurrentWorkspaceId}`;
                         const gtmNewVar = `${gtmNewVarName}`;
                     
                         //Creates a new GTM lookup variable
-                        const gtmVar = gtm.accounts.containers.workspaces.variables.create({
+                        const gtmVar = await gtm.accounts.containers.workspaces.variables.create({
                             parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/' + gtmWorkId,
                             requestBody: {
                                 'name': gtmNewVar,
@@ -204,8 +206,19 @@ async function runSample() {
             }
         });
 
-        //Create a Workspace called cm-000-ga4
+        /*
+        //Get GTM Containers
+        const getContainers = await gtm.accounts.containers.get({
+            path: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
+        });
+        console.log('--------------------------------------');
+        
+        console.log(getContainers.data);
+        console.log(getContainers.data.accountId);
+        console.log(getContainers.data.containerId);
+        */
 
+        //Create a Workspace called cm-000-ga4
         /*
         const createWorkspace = await gtm.accounts.containers.workspaces.create({
             // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
@@ -227,14 +240,9 @@ async function runSample() {
         const listWorkspaces = await gtm.accounts.containers.workspaces.list({
             parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID 
         });
-        
         console.log(listWorkspaces.data);
-
         */
         
-
-     
-
         /*
         //Deletes a Workspace
         const deleteWorkspace = await gtm.accounts.containers.workspaces.delete({
@@ -246,11 +254,6 @@ async function runSample() {
         console.log(listWorkspaces.data);
         console.log(deleteWorkspace);
         */
-        
-        
-        
-
-        
         
 
         // After creating workspace we need to grab to workspace ID and save it as a const variable
