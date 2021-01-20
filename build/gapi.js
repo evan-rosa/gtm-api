@@ -19,23 +19,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const path = require('path');
 const { authenticate } = require('@google-cloud/local-auth');
 const gtm = google.tagmanager('v2');
-const dotenv = __importStar(require("dotenv"));
 const readline = require('readline');
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
-const scope = ['https://www.googleapis.com/auth/tagmanager.readonly',
+const scope = [
+    'https://www.googleapis.com/auth/tagmanager.readonly',
     'https://www.googleapis.com/auth/tagmanager.manage.accounts',
     'https://www.googleapis.com/auth/tagmanager.edit.containers',
     'https://www.googleapis.com/auth/tagmanager.delete.containers',
     'https://www.googleapis.com/auth/tagmanager.edit.containerversions',
     'https://www.googleapis.com/auth/tagmanager.manage.users',
-    'https://www.googleapis.com/auth/tagmanager.publish',];
+    'https://www.googleapis.com/auth/tagmanager.publish'
+];
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
 const gtmContainerID = process.env.GTM_CONTAINER_ID;
@@ -244,15 +246,14 @@ async function runSample() {
         });
         console.log(listWorkspaces.data);
         */
-        /*
         //Deletes a Workspace
+        /*
         const deleteWorkspace = await gtm.accounts.containers.workspaces.delete({
-            path: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/61'
+            path: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/64'
         })
 
         //list workspaces to console log to verify workspace was deleted
         console.log('-------------------------------------------------');
-        console.log(listWorkspaces.data);
         console.log(deleteWorkspace);
         */
         // After creating workspace we need to grab to workspace ID and save it as a const variable
