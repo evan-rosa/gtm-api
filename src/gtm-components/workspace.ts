@@ -8,9 +8,7 @@ const gtmAcctID = process.env.GTM_ACCOUNT_ID;
 
 export async function createWorkspace(containerId: number, workspaceName: string, description: string){
       await gtm.accounts.containers.workspaces.create({
-        // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
         parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId,
-        // Request body metadata
         requestBody: {
           'name': `${workspaceName}`,
           'description': `${description}`
@@ -34,6 +32,7 @@ export async function listWorkspace(containerId: number){
   const list = await gtm.accounts.containers.workspaces.list({
     parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId 
   });
+  console.log(list.data.workspace);
   return list.data.workspace
 }
 

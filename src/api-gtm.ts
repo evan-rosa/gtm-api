@@ -27,15 +27,13 @@ async function runSample() {
         const containerId: number = containers.find((id: any) => id.publicId === gtmContainerId).containerId;
         
         //Workspaces
-        const workspaces = await listWorkspace(containerId);
-
         //Create gtm workspace
-        //Save workspace name as a const. This name should be standardized to avoid errors.
-        const workspaceName: string = 'test workspace create';
-        const workspaceDescription: string = 'test workspace create';
+        const workspaceName = 'test workspace create';
+        const workspaceDescription = 'test workspace create';
         await createWorkspace(containerId, workspaceName, workspaceDescription);
 
-        const workspaceId: number = workspaces.find((id: any) => id.name === workspaceName).workspaceId;
+        const workspaces = await listWorkspace(containerId);
+        const workspaceId: number = await workspaces.find((id: any) => id.name === workspaceName).workspaceId;
 
         //Syncs a workspace to the latest container version by updating all unmodified workspace entities and displaying conflicts for modified entities.
         await syncWorkspace(containerId, workspaceId);
