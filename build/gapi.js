@@ -49,96 +49,103 @@ async function runSample() {
             scopes: scope,
         });
         google.options({ auth });
-        rl.question("Is this an existing workspace?", async function (answer) {
+        rl.question("Is this an existing workspace (Yes or No)? ", async function (answer) {
             const yes = 'yes';
             const no = 'no';
             if (answer == no) {
-                rl.question("Do you want to create a new workspace? ", async function name(answer) {
-                    if (answer == no) {
-                        console.log("Ok, we will not create a new GTM workspace. Closing program, Goodbye.");
-                        process.exit(0);
-                    }
-                    if (answer == yes) {
-                        rl.question("What would you like to name this new workspace?", async function (workspaceName) {
-                            rl.question("Please provide a description for this new workspace.", async function (description) {
-                                const gtmNewWorkspaceName = `${workspaceName}`;
-                                const gtmWorkspaceDescription = `${description}`;
-                                await gtm.accounts.containers.workspaces.create({
-                                    // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
-                                    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
-                                    // Request body metadata
-                                    requestBody: {
-                                        'name': gtmNewWorkspaceName,
-                                        'description': gtmWorkspaceDescription
-                                    },
-                                });
-                                // Asking which GTM workspace we need to update
-                                rl.question('Which GTM workspace ID do you want to edit?', async function (gtmCurrentWorkspaceId) {
-                                    rl.question("What do you want to name your gtm variable?", async function (gtmNewVarName) {
-                                        rl.close();
-                                        const gtmWorkId = `${gtmCurrentWorkspaceId}`;
-                                        const gtmNewVar = `${gtmNewVarName}`;
-                                        //Creates a new GTM lookup variable
-                                        const gtmVar = await gtm.accounts.containers.workspaces.variables.create({
-                                            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/' + gtmWorkId,
-                                            requestBody: {
-                                                'name': gtmNewVar,
-                                                'type': 'smm',
-                                                'parameter': [
-                                                    {
-                                                        'type': 'template',
-                                                        'key': 'input',
-                                                        'value': '{{Page Hostname}}'
-                                                    },
-                                                    {
-                                                        'type': 'list',
-                                                        'key': 'map',
-                                                        'list': [
-                                                            {
-                                                                'type': 'map',
-                                                                'map': [
-                                                                    {
-                                                                        "type": "template",
-                                                                        "key": "key",
-                                                                        "value": "localhost"
-                                                                    },
-                                                                    {
-                                                                        "type": "template",
-                                                                        "key": "value",
-                                                                        "value": "G-R4QFJ2JKM6"
-                                                                    }
-                                                                ]
-                                                            },
-                                                            {
-                                                                'type': 'map',
-                                                                'map': [
-                                                                    {
-                                                                        "type": "template",
-                                                                        "key": "key",
-                                                                        "value": "localhost"
-                                                                    },
-                                                                    {
-                                                                        "type": "template",
-                                                                        "key": "value",
-                                                                        "value": "null"
-                                                                    }
-                                                                ]
-                                                            },
-                                                        ]
-                                                    },
-                                                    {
-                                                        'type': 'template',
-                                                        'key': 'defaultValue',
-                                                        'value': '(not set)'
-                                                    }
-                                                ]
-                                            }
-                                        });
-                                    });
-                                });
-                            });
+                rl.question("What would you like to name this new workspace?", async function (workspaceName) {
+                    rl.question("Please provide a description for this new workspace.", async function (description) {
+                        //save answers as const variables. This will be used to create a new workspace
+                        const gtmNewWorkspaceName = `${workspaceName}`;
+                        const gtmWorkspaceDescription = `${description}`;
+                        //create new workspace
+                        await gtm.accounts.containers.workspaces.create({
+                            // GTM parent Container&#39;s API relative path. Example: accounts/{account_id\}/containers/{container_id\}
+                            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
+                            // Request body metadata
+                            requestBody: {
+                                'name': gtmNewWorkspaceName,
+                                'description': gtmWorkspaceDescription
+                            },
                         });
-                    }
+                        //Lists Workspaces
+                        const listWorkspaces = await gtm.accounts.containers.workspaces.list({
+                            parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID,
+                        });
+                        console.log(listWorkspaces.data);
+                        // Asking which GTM workspace we need to update
+                        rl.question('Which GTM workspace ID do you want to edit?', async function (gtmCurrentWorkspaceId) {
+                            const gtmWorkId = `${gtmCurrentWorkspaceId}`;
+                            rl.question('Do you want to create, update or delete in GTM?', async function (answer) {
+                                const gtm = `${answer}`;
+                            });
+                            /*
+                            rl.question("What do you want to name your gtm variable?", async function(gtmNewVarName: any) {
+
+                                rl.close();
+                                const gtmWorkId = `${gtmCurrentWorkspaceId}`;
+                                const gtmNewVar = `${gtmNewVarName}`;
+                            
+                                //Creates a new GTM lookup variable
+                                const gtmVar = await gtm.accounts.containers.workspaces.variables.create({
+                                    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + gtmContainerID + '/' + 'workspaces/' + gtmWorkId,
+                                    requestBody: {
+                                        'name': gtmNewVar,
+                                        'type': 'smm',
+                                        'parameter': [
+                                            {
+                                            'type': 'template',
+                                            'key': 'input',
+                                            'value': '{{Page Hostname}}'
+                                            },
+                                            {
+                                            'type': 'list',
+                                            'key': 'map',
+                                            'list': [
+                                            {
+                                            'type': 'map',
+                                            'map': [
+                                                {
+                                                    "type": "template",
+                                                    "key": "key",
+                                                    "value": "localhost"
+                                                    },
+                                                    {
+                                                    "type": "template",
+                                                    "key": "value",
+                                                    "value": "G-R4QFJ2JKM6"
+                                                }
+                                            ]
+                                            },
+                                            {
+                                                'type': 'map',
+                                                'map': [
+                                                {
+                                                    "type": "template",
+                                                    "key": "key",
+                                                    "value": "localhost"
+                                                    },
+                                                    {
+                                                    "type": "template",
+                                                    "key": "value",
+                                                    "value": "null"
+                                                }
+                                                ]
+                                            },
+                                            ]
+                                            },
+                                            {
+                                            'type': 'template',
+                                            'key': 'defaultValue',
+                                            'value': '(not set)'
+                                            }
+                                        ]
+                                    }
+                                })
+                                });
+                                */
+                        });
+                    });
                 });
             }
             else if (answer == yes) {
