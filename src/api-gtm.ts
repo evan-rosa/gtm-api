@@ -44,7 +44,7 @@ async function runSample() {
         //Syncs a workspace to the latest container version by updating all unmodified workspace entities and displaying conflicts for modified entities.
         await syncWorkspace(containerId, workspaceId);
 
-        //if status is bad do x otherwise do y
+        //if status is bad do x otherwise do ygit 
         await getStatusWorkspace(containerId, workspaceId);
 
         //Pushes workspace to latest gtm version
