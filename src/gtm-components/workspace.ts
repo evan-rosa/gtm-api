@@ -16,6 +16,13 @@ export async function createWorkspace(containerId: number, workspaceName: string
       });
   }
 
+export async function getStatusWorkspace(containerId: number, workspaceNumber: number){
+     const res = await gtm.accounts.containers.workspaces.getStatus({
+      path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/' + 'workspaces/' + `${workspaceNumber}`,
+     });
+     console.log(res.data);
+}
+
 export async function deleteWorkspace(containerId: number, workspaceNumber: number){
     await gtm.accounts.containers.workspaces.delete({
       path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/' + 'workspaces/' + `${workspaceNumber}`

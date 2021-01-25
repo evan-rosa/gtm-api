@@ -19,7 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createVersion = exports.syncWorkspace = exports.listWorkspace = exports.updateWorkspace = exports.deleteWorkspace = exports.createWorkspace = void 0;
+exports.createVersion = exports.syncWorkspace = exports.listWorkspace = exports.updateWorkspace = exports.deleteWorkspace = exports.getStatusWorkspace = exports.createWorkspace = void 0;
 const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
@@ -35,6 +35,13 @@ async function createWorkspace(containerId, workspaceName, description) {
     });
 }
 exports.createWorkspace = createWorkspace;
+async function getStatusWorkspace(containerId, workspaceNumber) {
+    const res = await gtm.accounts.containers.workspaces.getStatus({
+        path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/' + 'workspaces/' + `${workspaceNumber}`,
+    });
+    console.log(res.data);
+}
+exports.getStatusWorkspace = getStatusWorkspace;
 async function deleteWorkspace(containerId, workspaceNumber) {
     await gtm.accounts.containers.workspaces.delete({
         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/' + 'workspaces/' + `${workspaceNumber}`

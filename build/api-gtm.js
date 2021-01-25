@@ -44,14 +44,18 @@ async function runSample() {
         const workspaceDescription = 'test workspace create';
         await workspace_1.createWorkspace(containerId, workspaceName, workspaceDescription);
         const workspaces = await workspace_1.listWorkspace(containerId);
+        //Delete Workspace
+        //await deleteWorkspace(containerId, 68);
         const workspaceId = await workspaces.find((id) => id.name === workspaceName).workspaceId;
         //Syncs a workspace to the latest container version by updating all unmodified workspace entities and displaying conflicts for modified entities.
         await workspace_1.syncWorkspace(containerId, workspaceId);
+        //if status is bad do x otherwise do y
+        await workspace_1.getStatusWorkspace(containerId, workspaceId);
         //Pushes workspace to latest gtm version
         //In order provide: containerID, workspaceID, versionName, versionDescription
         const versionName = 'Test for GTM Workspace Push';
         const versionDescription = 'This is a test with the GTM API';
-        await workspace_1.createVersion(containerId, workspaceId, versionName, versionDescription);
+        //await createVersion(containerId, workspaceId, versionName, versionDescription);
     }
     catch (err) {
         console.log(err);
