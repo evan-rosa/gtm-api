@@ -23,30 +23,37 @@ require("module-alias/register");
 const auth_1 = require("@gtmComponents/auth");
 const containers_1 = require("@gtmComponents/containers");
 const workspace_1 = require("@gtmComponents/workspace");
+const variables_1 = require("@gtmComponents/variables");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 //If you need to change the gtm account ID, change it in the env file
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
 async function runSample() {
     try {
-        //GTM Authentication
+        //GTM AUTH
         await auth_1.gtmAuthenticate();
-        //Containers
+        //CONTAINER
         // Add GTM Account Number
         const containers = await containers_1.listContainers(gtmAcctID);
         //Save GTM container ID as const. See GTM GUI to get ID
         const gtmContainerId = 'GTM-P4DJ4N2';
-        //We need to get a private container ID to call the API
-        const containerId = containers.find((id) => id.publicId === gtmContainerId).containerId;
-        //Workspaces
+        //We need to get the private container ID to call the API
+        const containerId = await containers.find((id) => id.publicId === gtmContainerId).containerId;
+        //WORKSPACE
         //Create gtm workspace
-        const workspaceName = 'test workspace create';
-        const workspaceDescription = 'test workspace create';
-        await workspace_1.createWorkspace(containerId, workspaceName, workspaceDescription);
+        //Uses interface
+        let detailsWorkspace = {
+            workspaceName: 'ga4-test',
+            description: 'test workspace create',
+            containerId: containerId
+        };
+        /*
+        await createWorkspace(detailsWorkspace);
+        */
         const workspaces = await workspace_1.listWorkspace(containerId);
         //Delete Workspace
-        //await deleteWorkspace(containerId, 68);
-        const workspaceId = await workspaces.find((id) => id.name === workspaceName).workspaceId;
+        //await deleteWorkspace(containerId, 70); 52
+        const workspaceId = await workspaces.find((id) => id.name === detailsWorkspace.workspaceName).workspaceId;
         //Syncs a workspace to the latest container version by updating all unmodified workspace entities and displaying conflicts for modified entities.
         await workspace_1.syncWorkspace(containerId, workspaceId);
         //if status is bad do x otherwise do y
@@ -56,6 +63,39 @@ async function runSample() {
         const versionName = 'Test for GTM Workspace Push';
         const versionDescription = 'This is a test with the GTM API';
         //await createVersion(containerId, workspaceId, versionName, versionDescription);
+        //VARIABLES
+        //Create Variable
+        let varCreate = {
+            workspaceNumber: workspaceId,
+            containerId: containerId,
+        };
+        //custom function for GTM variable - custom js
+        const f = "function() {\n return function(target: any, selector: any) {while(!target.matches(selector) && !target.matches(\"body\")){target = target.parentElement;}return target.matches(selector) ? target : undefined};\n}";
+        //createVariable needs to take in the interface of varCreate and the variable type you want to create
+        //Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
+        //createVariable(varCreate, '1st Party Cookie','k','cookie');
+        //createVariable(varCreate, 'y','aev','URL');
+        //createVariable(varCreate, 'AEV','aev','HISTORY_NEW_STATE');
+        //createVariable(varCreate, 'constant string','c','constant');
+        //createVariable(varCreate, 'container version number','ctv');
+        //createVariable(varCreate, 'custom event','e');
+        variables_1.createVariable(varCreate, ' parent', 'jsm', f);
+        //createVariable(varCreate, 'dlv','v', 'event-dlv');
+        //createVariable(varCreate, 'DOM Element','d','#id', 'aria-label');
+        //createVariable(varCreate, 'http','f', 'PROTOCOL');
+        //createVariable(varCreate, 'js var','j', 'document.title');
+        //createVariable(varCreate, 'lookup','smm','local','localhost','{{Page Hostname}}');
+        //createVariable(varCreate, 'random number','r');
+        //createVariable(varCreate, 'url','u', 'PATH');
+        //List Variables
+        //const variableName: string = 'test-cookie-2';
+        let varListDetails = {
+            workspaceNumber: workspaceId,
+            containerId: containerId
+        };
+        const gtmVariables = await variables_1.listVariables(varListDetails);
+        //issue w/ gtmVariable list method
+        //const variableId: number = await gtmVariables.find((id: any) => id.name === variableName).variableId;
     }
     catch (err) {
         console.log(err);

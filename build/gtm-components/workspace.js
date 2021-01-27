@@ -25,12 +25,12 @@ const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
-async function createWorkspace(containerId, workspaceName, description) {
+async function createWorkspace(obj) {
     await gtm.accounts.containers.workspaces.create({
-        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId,
+        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId,
         requestBody: {
-            'name': `${workspaceName}`,
-            'description': `${description}`
+            'name': `${obj.workspaceName}`,
+            'description': `${obj.description}`
         },
     });
 }
@@ -39,7 +39,6 @@ async function getStatusWorkspace(containerId, workspaceNumber) {
     const res = await gtm.accounts.containers.workspaces.getStatus({
         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/' + 'workspaces/' + `${workspaceNumber}`,
     });
-    console.log(res.data);
 }
 exports.getStatusWorkspace = getStatusWorkspace;
 async function deleteWorkspace(containerId, workspaceNumber) {
@@ -58,7 +57,6 @@ async function listWorkspace(containerId) {
     const list = await gtm.accounts.containers.workspaces.list({
         parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId
     });
-    console.log(list.data.workspace);
     return list.data.workspace;
 }
 exports.listWorkspace = listWorkspace;
@@ -66,7 +64,6 @@ async function syncWorkspace(containerId, workspaceNumber) {
     const sync = await gtm.accounts.containers.workspaces.sync({
         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/' + 'workspaces/' + `${workspaceNumber}`
     });
-    console.log(sync.data);
     return sync;
 }
 exports.syncWorkspace = syncWorkspace;
@@ -78,6 +75,5 @@ async function createVersion(containerId, workspaceNumber, versionName, versionD
             'notes': versionDescription
         }
     });
-    console.log(res.data);
 }
 exports.createVersion = createVersion;
