@@ -5,17 +5,15 @@ const gtm = google.tagmanager('v2');
 dotenv.config();
 
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
-
-//Create Variable
-//Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
-//Need to create a function that takes in the type of variable and then outputs the parameters to create the variable in GTM
 interface varCreateDetails {
   workspaceNumber: number,
   containerId: number
 }
+//Create Variable
+//Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
 
 //export function for creating a variable in GTM
-export async function createVariable(obj:varCreateDetails, varName: string, varType: string, reqVal= '', optVal = '', lookupVarType = '' ){
+export async function createVariable(obj:varCreateDetails, varName: string, varType: string, reqVal?: any, optVal?: any){
   //Save all gtm variable types as constant variable array objects to be called later
   //1st Party Cookie
   const k = [
@@ -101,33 +99,21 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
      "value": reqVal //required value
     }
    ];
+   
+
    //Lookup Table
+
+   //lookup variable
    const smm = [
     {
      "type": "template",
      "key": "input",
-     "value": lookupVarType //value used for lookup
+     "value": reqVal //value used for lookup
     },
     {
      "type": "list",
      "key": "map",
-     "list": [
-      {
-       "type": "map",
-       "map": [
-        {
-         "type": "template",
-         "key": "key",
-         "value": reqVal //required value (value coming in)
-        },
-        {
-         "type": "template",
-         "key": "value",
-         "value": optVal //required value (value going out)
-        }
-       ]
-      }
-     ]
+     "list": optVal
     },
     {
      "type": "template",
@@ -135,6 +121,30 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
      "value": "MyDefaultValue" // Optional Value
     }
    ];
+
+   
+   //Lookup Regex
+   const remm = [
+    {
+     "type": "template",
+     "key": "input",
+     "value": reqVal //value used for lookup
+    },
+    {
+     "type": "list",
+     "key": "map",
+     "list": optVal
+    },
+    {
+     "type": "template",
+     "key": "defaultValue",
+     "value": "MyDefaultValue" // Optional Value
+    }
+   ];
+
+
+
+
    //URL Variable
    const u = [
     {
@@ -161,6 +171,7 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
     : varType ==='d' ? d
     : varType ==='f' ? f
     : varType ==='j' ? j
+    : varType ==='remm' ? remm
     : varType ==='smm' ? smm
     : varType ==='r' ? null
     : varType ==='u' ? u
@@ -177,22 +188,28 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
          });
   }
 
-  //List Variables
-  interface varListDetails {
-    workspaceNumber: number,
-    containerId: number
-  }
-  export async function listVariables(obj:varListDetails){
-       const res = await gtm.accounts.containers.workspaces.variables.list({
-         parent:'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
-        });
-        return res.data.variable
-  }
+//Delete GTM Variable
+export async function deleteVariable(obj: varCreateDetails, variableId: number){
+  const res = await gtm.accounts.containers.workspaces.variables.delete({
+    path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
+  });
+ }
 
-  //Delete Variable
-  export async function deleteVariable(containerId: number, workspaceNumber: number, variableId: number){
-       const res = await gtm.accounts.containers.workspaces.variables.delete({
-         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/workspaces/' + `${workspaceNumber}` + '/variables/' + variableId,
-       });
-  }
+// Get GTM Variable
+export async function getVariable(obj: varCreateDetails, variableId: number ){
+  const res = await gtm.accounts.containers.workspaces.variables.get({
+    path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
+  });
+  console.log(res.data);
   
+}
+ 
+
+//List Variables
+export async function listVariables(obj:varCreateDetails){
+      const res = await gtm.accounts.containers.workspaces.variables.list({
+        parent:'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+      });
+      return res.data.variable
+}
+

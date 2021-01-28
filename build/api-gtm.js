@@ -69,8 +69,57 @@ async function runSample() {
             workspaceNumber: workspaceId,
             containerId: containerId,
         };
+        const gtmVariables = await variables_1.listVariables(varCreate);
         //custom function for GTM variable - custom js
         const f = "function() {\n return function(target: any, selector: any) {while(!target.matches(selector) && !target.matches(\"body\")){target = target.parentElement;}return target.matches(selector) ? target : undefined};\n}";
+        //define rows and values for lookup table here.
+        const smmList = [
+            {
+                "type": "map",
+                "map": [
+                    {
+                        "type": "template",
+                        "key": "key",
+                        "value": '1001' //required value (value coming in)
+                    },
+                    {
+                        "type": "template",
+                        "key": "value",
+                        "value": '1001' //required value (value going out)
+                    }
+                ]
+            },
+            {
+                "type": "map",
+                "map": [
+                    {
+                        "type": "template",
+                        "key": "key",
+                        "value": 't' //required value (value coming in)
+                    },
+                    {
+                        "type": "template",
+                        "key": "value",
+                        "value": 'e' //required value (value going out)
+                    }
+                ]
+            },
+            {
+                "type": "map",
+                "map": [
+                    {
+                        "type": "template",
+                        "key": "key",
+                        "value": 'g' //required value (value coming in)
+                    },
+                    {
+                        "type": "template",
+                        "key": "value",
+                        "value": 'w' //required value (value going out)
+                    }
+                ]
+            }
+        ];
         //createVariable needs to take in the interface of varCreate and the variable type you want to create
         //Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
         //createVariable(varCreate, '1st Party Cookie','k','cookie');
@@ -79,23 +128,22 @@ async function runSample() {
         //createVariable(varCreate, 'constant string','c','constant');
         //createVariable(varCreate, 'container version number','ctv');
         //createVariable(varCreate, 'custom event','e');
-        variables_1.createVariable(varCreate, ' parent', 'jsm', f);
+        //createVariable(varCreate, ' parent','jsm', f);
         //createVariable(varCreate, 'dlv','v', 'event-dlv');
         //createVariable(varCreate, 'DOM Element','d','#id', 'aria-label');
         //createVariable(varCreate, 'http','f', 'PROTOCOL');
         //createVariable(varCreate, 'js var','j', 'document.title');
-        //createVariable(varCreate, 'lookup','smm','local','localhost','{{Page Hostname}}');
+        //createVariable(varCreate, 'lookup new test 1001','remm','{{Event}}', smmList);
+        variables_1.createVariable(varCreate, 'lookup test regex', 'remm', '{{Page Hostname}}', smmList);
         //createVariable(varCreate, 'random number','r');
-        //createVariable(varCreate, 'url','u', 'PATH');
-        //List Variables
-        //const variableName: string = 'test-cookie-2';
-        let varListDetails = {
-            workspaceNumber: workspaceId,
-            containerId: containerId
-        };
-        const gtmVariables = await variables_1.listVariables(varListDetails);
-        //issue w/ gtmVariable list method
-        //const variableId: number = await gtmVariables.find((id: any) => id.name === variableName).variableId;
+        //createVariable(varCreate, 'url test','u', 'PATH');
+        //need to define gtm variable name to delete (character sensitive)
+        const variableName = 'lookup';
+        // const variableId: number = await gtmVariables.find((id: any) => id.name === variableName).variableId;
+        //Delete Variables
+        //deleteVariable(varCreate, variableId);
+        //Get Variable
+        // getVariable(varCreate, variableId);
     }
     catch (err) {
         console.log(err);

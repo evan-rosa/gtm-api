@@ -19,14 +19,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteVariable = exports.listVariables = exports.createVariable = void 0;
+exports.listVariables = exports.getVariable = exports.deleteVariable = exports.createVariable = void 0;
 const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
+//Create Variable
+//Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
 //export function for creating a variable in GTM
-async function createVariable(obj, varName, varType, reqVal = '', optVal = '', lookupVarType = '') {
+async function createVariable(obj, varName, varType, reqVal, optVal) {
     //Save all gtm variable types as constant variable array objects to be called later
     //1st Party Cookie
     const k = [
@@ -113,32 +115,35 @@ async function createVariable(obj, varName, varType, reqVal = '', optVal = '', l
         }
     ];
     //Lookup Table
+    //lookup variable
     const smm = [
         {
             "type": "template",
             "key": "input",
-            "value": lookupVarType //value used for lookup
+            "value": reqVal //value used for lookup
         },
         {
             "type": "list",
             "key": "map",
-            "list": [
-                {
-                    "type": "map",
-                    "map": [
-                        {
-                            "type": "template",
-                            "key": "key",
-                            "value": reqVal //required value (value coming in)
-                        },
-                        {
-                            "type": "template",
-                            "key": "value",
-                            "value": optVal //required value (value going out)
-                        }
-                    ]
-                }
-            ]
+            "list": optVal
+        },
+        {
+            "type": "template",
+            "key": "defaultValue",
+            "value": "MyDefaultValue" // Optional Value
+        }
+    ];
+    //Lookup Regex
+    const remm = [
+        {
+            "type": "template",
+            "key": "input",
+            "value": reqVal //value used for lookup
+        },
+        {
+            "type": "list",
+            "key": "map",
+            "list": optVal
         },
         {
             "type": "template",
@@ -171,10 +176,11 @@ async function createVariable(obj, varName, varType, reqVal = '', optVal = '', l
                                     : varType === 'd' ? d
                                         : varType === 'f' ? f
                                             : varType === 'j' ? j
-                                                : varType === 'smm' ? smm
-                                                    : varType === 'r' ? null
-                                                        : varType === 'u' ? u
-                                                            : null;
+                                                : varType === 'remm' ? remm
+                                                    : varType === 'smm' ? smm
+                                                        : varType === 'r' ? null
+                                                            : varType === 'u' ? u
+                                                                : null;
     // Create variable
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
@@ -186,6 +192,21 @@ async function createVariable(obj, varName, varType, reqVal = '', optVal = '', l
     });
 }
 exports.createVariable = createVariable;
+//Delete Variable
+async function deleteVariable(obj, variableId) {
+    const res = await gtm.accounts.containers.workspaces.variables.delete({
+        path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
+    });
+}
+exports.deleteVariable = deleteVariable;
+async function getVariable(obj, variableId) {
+    const res = await gtm.accounts.containers.workspaces.variables.get({
+        path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
+    });
+    console.log(res.data);
+}
+exports.getVariable = getVariable;
+//List Variables
 async function listVariables(obj) {
     const res = await gtm.accounts.containers.workspaces.variables.list({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
@@ -193,10 +214,3 @@ async function listVariables(obj) {
     return res.data.variable;
 }
 exports.listVariables = listVariables;
-//Delete Variable
-async function deleteVariable(containerId, workspaceNumber, variableId) {
-    const res = await gtm.accounts.containers.workspaces.variables.delete({
-        path: 'accounts/' + gtmAcctID + '/' + 'containers/' + containerId + '/workspaces/' + `${workspaceNumber}` + '/variables/' + variableId,
-    });
-}
-exports.deleteVariable = deleteVariable;
