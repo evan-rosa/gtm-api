@@ -4,7 +4,7 @@ import 'module-alias/register';
 import { gtmAuthenticate } from '@gtmComponents/auth';
 import { listContainers } from '@gtmComponents/containers';
 import { createWorkspace, deleteWorkspace, syncWorkspace, listWorkspace, createVersion, getStatusWorkspace } from '@gtmComponents/workspace';
-import {createVariable, deleteVariable, getVariable, listVariables} from '@gtmComponents/variables';
+import {createVariable, deleteVariable, getVariable, listVariables, revertVariable} from '@gtmComponents/variables';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -68,6 +68,7 @@ async function runSample() {
         };
 
         const gtmVariables = await listVariables(varCreate); 
+        gtmVariables
 
         //custom function for GTM variable - custom js
         const f: any = "function() {\n return function(target: any, selector: any) {while(!target.matches(selector) && !target.matches(\"body\")){target = target.parentElement;}return target.matches(selector) ? target : undefined};\n}";
@@ -144,17 +145,23 @@ async function runSample() {
         //createVariable(varCreate, 'lookup test regex','remm','{{Page Hostname}}', smmList);
         //createVariable(varCreate, 'random number','r');
         //createVariable(varCreate, 'url test','u', 'PATH');
+        //createVariable(varCreate, 'test vis', 'vis','#test','BOOLEAN','CSS','75');
+        //createVariable(varCreate, 'test vis 1023', 'vis','body','PERCENT','CSS');
         
         //need to define gtm variable name to delete (character sensitive)
-        const variableName: string = 'lookup';
-       // const variableId: number = await gtmVariables.find((id: any) => id.name === variableName).variableId;
+        const variableName: string = 'UA - Settings - All - Generic';
+        const variableId: number = await gtmVariables.find((id: any) => id.name === variableName).variableId;
 
         //Delete Variables
         //deleteVariable(varCreate, variableId);
         
 
         //Get Variable
-       // getVariable(varCreate, variableId);
+        getVariable(varCreate, variableId);
+
+       //Revert Variable
+       //Reverts changes to variable. If no changes occur revert will delete variable.
+       //revertVariable(varCreate, variableId)
         
     } catch (err){
         console.log(err)

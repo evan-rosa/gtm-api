@@ -70,6 +70,7 @@ async function runSample() {
             containerId: containerId,
         };
         const gtmVariables = await variables_1.listVariables(varCreate);
+        gtmVariables;
         //custom function for GTM variable - custom js
         const f = "function() {\n return function(target: any, selector: any) {while(!target.matches(selector) && !target.matches(\"body\")){target = target.parentElement;}return target.matches(selector) ? target : undefined};\n}";
         //define rows and values for lookup table here.
@@ -133,17 +134,22 @@ async function runSample() {
         //createVariable(varCreate, 'DOM Element','d','#id', 'aria-label');
         //createVariable(varCreate, 'http','f', 'PROTOCOL');
         //createVariable(varCreate, 'js var','j', 'document.title');
-        //createVariable(varCreate, 'lookup new test 1001','remm','{{Event}}', smmList);
-        variables_1.createVariable(varCreate, 'lookup test regex', 'remm', '{{Page Hostname}}', smmList);
+        //createVariable(varCreate, 'lookup new test 1001','smm','{{Event}}', smmList);
+        //createVariable(varCreate, 'lookup test regex','remm','{{Page Hostname}}', smmList);
         //createVariable(varCreate, 'random number','r');
         //createVariable(varCreate, 'url test','u', 'PATH');
+        //createVariable(varCreate, 'test vis', 'vis','#test','BOOLEAN','CSS','75');
+        //createVariable(varCreate, 'test vis 1023', 'vis','body','PERCENT','CSS');
         //need to define gtm variable name to delete (character sensitive)
-        const variableName = 'lookup';
-        // const variableId: number = await gtmVariables.find((id: any) => id.name === variableName).variableId;
+        const variableName = 'UA - Settings - All - Generic';
+        const variableId = await gtmVariables.find((id) => id.name === variableName).variableId;
         //Delete Variables
         //deleteVariable(varCreate, variableId);
         //Get Variable
-        // getVariable(varCreate, variableId);
+        variables_1.getVariable(varCreate, variableId);
+        //Revert Variable
+        //Reverts changes to variable. If no changes occur revert will delete variable.
+        //revertVariable(varCreate, variableId)
     }
     catch (err) {
         console.log(err);

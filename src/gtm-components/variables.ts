@@ -13,7 +13,7 @@ interface varCreateDetails {
 //Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
 
 //export function for creating a variable in GTM
-export async function createVariable(obj:varCreateDetails, varName: string, varType: string, reqVal?: any, optVal?: any){
+export async function createVariable(obj:varCreateDetails, varName: string, varType: string, reqVal?: any, optVal?: any, visSelectType?: any, visPercentage?: any){
   //Save all gtm variable types as constant variable array objects to be called later
   //1st Party Cookie
   const k = [
@@ -99,8 +99,65 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
      "value": reqVal //required value
     }
    ];
-   
 
+
+   //GA Setting variable
+   const gas = [
+    { 
+      type: 'template', 
+      key: 'cookieDomain', //Cookie domain
+      value: 'auto' 
+    },
+    { 
+      type: 'boolean', 
+      key: 'doubleClick', 
+      value: 'false' 
+    },
+    { 
+      type: 'boolean', 
+      key: 'setTrackerName', 
+      value: 'false' 
+    },
+    { 
+      type: 'boolean', 
+      key: 'useDebugVersion', 
+      value: 'false' 
+    },
+    { 
+      type: 'list', 
+      key: 'fieldsToSet', 
+      list: [Array] 
+    },
+    { 
+      type: 'boolean', 
+      key: 'useHashAutoLink', 
+      value: 'false' 
+    },
+    { 
+      type: 'boolean', 
+      key: 'decorateFormsAutoLink', 
+      value: 'false' 
+    },
+    { 
+      type: 'boolean', 
+      key: 'enableLinkId', 
+      value: 'false' 
+    },
+    { 
+      type: 'list', 
+      key: 'dimension', 
+      list: [Array] 
+    },
+    { 
+      type: 'boolean', 
+      key: 'enableEcommerce', 
+      value: 'false' },
+    {
+      type: 'template',
+      key: 'trackingId',
+      value: '{{UA - Web Properties}}' //Tracking ID
+    }
+  ];
    //Lookup Table
 
    //lookup variable
@@ -142,9 +199,6 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
     }
    ];
 
-
-
-
    //URL Variable
    const u = [
     {
@@ -159,12 +213,37 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
     }
    ];
 
+   const visScreenRatio = optVal === "BOOLEAN" ? { 'type': 'template', 'key': 'onScreenRatio', 'value': visPercentage }
+   : null;
+
+   const vis =[
+    { 
+      'type': 'template', 
+      'key': 'elementId', 
+      'value': reqVal //Element Selector (#id or .class)
+    },
+    { 
+      'type': 'template', 
+      'key': 'outputMethod', 
+      'value': optVal // Value = BOOLEAN or PERCENT (If PERCENT then delete last bracket onScreenRatio)
+    },
+    { 
+      'type': 'template', 
+      'key': 'selectorType', 
+      'value': visSelectType //Selection Method (ID or CSS Selector)
+    },
+    visScreenRatio
+  ];
+
    //Save the request body params as a const variable - if statement calling the appropriate array object based on the input of the gtm variable type
    const params = varType === 'k' ? k
     : varType ==='aev' ? aev
     : varType ==='c' ? c
+    : varType ==='cid' ? null
     : varType ==='ctv' ? null
     : varType ==='e' ? null
+    : varType ==='ev' ? null
+    : varType ==='gas' ? gas
     : varType ==='jsm' ? jsm
     : varType ==='v' ? v
     : varType ==='dbg' ? null
@@ -175,6 +254,8 @@ export async function createVariable(obj:varCreateDetails, varName: string, varT
     : varType ==='smm' ? smm
     : varType ==='r' ? null
     : varType ==='u' ? u
+    : varType ==='uv' ? null
+    : varType ==='vis' ? vis
     : null;
    
   // Create variable
@@ -200,16 +281,24 @@ export async function getVariable(obj: varCreateDetails, variableId: number ){
   const res = await gtm.accounts.containers.workspaces.variables.get({
     path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
   });
+  console.log('***********************************************');
+  
   console.log(res.data);
   
 }
- 
 
 //List Variables
 export async function listVariables(obj:varCreateDetails){
       const res = await gtm.accounts.containers.workspaces.variables.list({
         parent:'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
       });
+      console.log(res.data.variable);
       return res.data.variable
 }
 
+//Revert GTM Variable Changes
+export async function revertVariable(obj:varCreateDetails, variableId: number){
+     const res = await gtm.accounts.containers.workspaces.variables.revert({
+      path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
+     });
+}
