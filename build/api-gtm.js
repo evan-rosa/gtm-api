@@ -70,7 +70,6 @@ async function runSample() {
             containerId: containerId,
         };
         const gtmVariables = await variables_1.listVariables(varCreate);
-        gtmVariables;
         //custom function for GTM variable - custom js
         const f = "function() {\n return function(target: any, selector: any) {while(!target.matches(selector) && !target.matches(\"body\")){target = target.parentElement;}return target.matches(selector) ? target : undefined};\n}";
         //define rows and values for lookup table here.
@@ -121,7 +120,97 @@ async function runSample() {
                 ]
             }
         ];
-        //createVariable needs to take in the interface of varCreate and the variable type you want to create
+        //GOOGLE ANALYTICS SETTING VARIABLE Key/Value Pairs
+        //GA Setting Fields to Set
+        const gasFieldsToSet = [{
+                'type': 'map',
+                'map': [
+                    {
+                        'type': 'template',
+                        'key': 'fieldName',
+                        'value': 'checkProtocolTask'
+                    },
+                    {
+                        'type': 'template',
+                        'key': 'value',
+                        'value': '{{JS - Empty Variable Function}}'
+                    }
+                ]
+            }];
+        //GA Setting Custom Dimensions
+        const gasCustomDimensions = [
+            {
+                "type": "map",
+                "map": [
+                    {
+                        'type': 'template',
+                        'key': 'index',
+                        'value': '1'
+                    },
+                    {
+                        'type': 'template',
+                        'key': 'dimension',
+                        'value': '{{Custom JS - Random Session ID}}'
+                    }
+                ]
+            }
+        ];
+        //GA Setting Content Group
+        const gasContentGroup = [
+            {
+                "type": "map",
+                "map": [
+                    {
+                        'type': 'template',
+                        'key': 'index',
+                        'value': '0'
+                    },
+                    {
+                        'type': 'template',
+                        'key': 'group',
+                        'value': 'Team 1'
+                    }
+                ]
+            }
+        ];
+        //GA Setting Custom Metric
+        const gasCustomMetric = [
+            {
+                "type": "map",
+                "map": [
+                    {
+                        type: 'template',
+                        key: 'index',
+                        value: '0'
+                    },
+                    {
+                        type: 'template',
+                        key: 'metric',
+                        value: '456'
+                    }
+                ]
+            }
+        ];
+        const varFormatValue = {
+            caseConversionType: 'lowercase',
+            convertNullToValue: {
+                type: 'template',
+                value: 'evan'
+            },
+            convertUndefinedToValue: {
+                type: 'template',
+                value: 'null'
+            },
+            convertTrueToValue: {
+                type: 'template',
+                value: 'false'
+            },
+            convertFalseToValue: {
+                type: 'template',
+                value: 'false'
+            }
+        };
+        //Epic with tickets under it
         //Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
         //createVariable(varCreate, '1st Party Cookie','k','cookie');
         //createVariable(varCreate, 'y','aev','URL');
@@ -140,16 +229,37 @@ async function runSample() {
         //createVariable(varCreate, 'url test','u', 'PATH');
         //createVariable(varCreate, 'test vis', 'vis','#test','BOOLEAN','CSS','75');
         //createVariable(varCreate, 'test vis 1023', 'vis','body','PERCENT','CSS');
-        //need to define gtm variable name to delete (character sensitive)
-        const variableName = 'UA - Settings - All - Generic';
+        //Create GA Setting Variable
+        //VarParams List
+        /*
+         * varParam 1 = Format Values
+         * varParam 2 = Tracking ID
+         * varParam 3 = Cookie Domain
+         * varParam 4 = Fields to Set
+         * varParam 5 = Custom Dimensions
+         * varParam 6 = Custom Metrics
+         * varParam 7 = Content Group
+         * varParam 8 = Enable Display Ad Feature (True/False string)
+         * varParam 9 = Cross Domain Tracking (comma separated list for domains and subdomains)
+         * varParam 10 =  Cross Domain Tracking Hash Auto Link
+         * varParam 11 = Cross Domain Tracking Decorate Forms Auto Link
+         * varParam 12 = Global function name for GTM. Renames the global function used by the Universal Analytics Tag
+         * varParam 13 = The transport URL is the base URL where analytics requests will be sent.
+         * varParam 14 = Debug Version (True/False string)
+         * varParam 15 =  Enable Enhanced Link Attribution (True/False string)
+         */
+        //createVariable(varCreate, 'GA Setting Test', 'gas','{{UA - Web Properties}}', 'auto',gasFieldsToSet,gasCustomDimensions, gasCustomMetric, gasContentGroup,'true','','false','false','','', 'true', 'true');
+        const variableName = 'GAS';
         const variableId = await gtmVariables.find((id) => id.name === variableName).variableId;
         //Delete Variables
         //deleteVariable(varCreate, variableId);
         //Get Variable
         variables_1.getVariable(varCreate, variableId);
+        //Update Variable
+        variables_1.updateVariable(varCreate, variableId, 'test', 'gas', '{{UA - Web Properties}}', 'auto', gasFieldsToSet, gasCustomDimensions, gasCustomMetric, gasContentGroup, 'true', '', 'true', 'true', '', '', 'false', 'false', varFormatValue);
         //Revert Variable
         //Reverts changes to variable. If no changes occur revert will delete variable.
-        //revertVariable(varCreate, variableId)
+        //revertVariable(varCreate)
     }
     catch (err) {
         console.log(err);
