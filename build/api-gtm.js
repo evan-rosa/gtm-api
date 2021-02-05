@@ -24,6 +24,7 @@ const auth_1 = require("@gtmComponents/auth");
 const containers_1 = require("@gtmComponents/containers");
 const workspace_1 = require("@gtmComponents/workspace");
 const variables_1 = require("@gtmComponents/variables");
+const triggers_1 = require("@gtmComponents/triggers");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 //If you need to change the gtm account ID, change it in the env file
@@ -289,7 +290,7 @@ async function runSample() {
         //URL
         //createUrlVariable(initialCred,'test url','QUERY','12341234')
         //Vis Var
-        variables_1.createVisibilityVariable(initialCred, 'vis', 'ID', '#test', 'PERCENT');
+        //createVisibilityVariable(initialCred,'vis','ID','#test','PERCENT' );
         //Delete Variables
         //deleteVariable(initialCred, variableId);
         //Update Variable
@@ -299,32 +300,16 @@ async function runSample() {
         //Reverts changes to variable. If no changes occur revert will delete variable.
         //revertVariable(initialCred)
         /*********************TRIGGERS***********************/
-        /** There are params for does not equal regex etc
-         *
-         *
-         * Filter Types
-         * contains
-         * equals
-         * startsWith
-         * endsWith
-         * cssSelector
-         * matchRegex
-         *
-         *
-         *
-         *
-         *
-         *
-         *
-         */
-        //const gtmTriggers = await listTriggers(initialCred);
-        //gtmTriggers
-        /*
-        const triggerName: string = 'test pageview - equals';
-        const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
-
-        getTrigger(initialCred,triggerId)
-        */
+        const gtmTriggers = await triggers_1.listTriggers(initialCred);
+        const triggerName = 'we';
+        const triggerId = await gtmTriggers.find((id) => id.name === triggerName).triggerId;
+        triggers_1.getTrigger(initialCred, triggerId);
+        //Pageview
+        //pageviewTrigger(initialCred,'pv test','contains',"{{Page Hostname}}", 'xyz')
+        //Dom Ready
+        //domReadyTrigger(initialCred, 'dom test','contains',"{{Page Hostname}}", 'xyz')
+        //Window loaded
+        //windowLoadedTrigger(initialCred, 'win load','contains',"{{Page Hostname}}", 'xyz')
         /**
          *
          *

@@ -11,187 +11,245 @@ interface triggerAuthDetails {
 }
 
 /*********************************Create Triggers**************************************/
-//export function for creating a trigger in GTM
-export async function createTrigger(obj:triggerAuthDetails, triggerName: string, triggerType: string, triggerCondition: string ,triggerParam1?: string, triggerParam2?: string, triggerParam3?: string, triggerParam4?: any){
-  const reqBodyPageviewAll = {
+
+//Pageview
+export async function pageviewTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
     "name": triggerName,
-    "type": triggerType,
+    "type": 'pageview',
    };
-  const reqBodyPageviewSome = {
+
+   const reqBodyCondition = {
     "name": triggerName,
-    "type": triggerType,
+    "type": 'pageview',
     filter: [ 
       { 
-        type: triggerParam1, 
+        type: triggerCondition, 
         parameter: [
           {
             type: 'template',
             key: 'arg0',
-            value: triggerParam2
+            value: key
           },
           { 
             type: 'template', 
             key: 'arg1', 
-            value: triggerParam3
+            value: val
           }
         ]
       } 
     ]
    };
-  const reqBodyTriggerGroupAll = {
-    "name": triggerName,
-    "type": 'triggerGroup',
-    "parameter": [
-      {
-        type: 'list',
-        key: 'triggerIds',
-        list: triggerParam1 //list of triggers
-      }
-    ]
-   };
-  const reqBodyTriggerGroupSome = {
-    "name": triggerName,
-    "type": 'triggerGroup',
-    "filter": [
-      {
-        type: triggerParam1, //contains, equal, regex, more than, less than etc.
-        parameter: [
-          {
-            type: 'template',
-            key: 'arg0',
-            value: triggerParam2 // {{event}}
-          },
-          { 
-            type: 'template', 
-            key: 'arg1', 
-            value: triggerParam3 // value
-          }
-        ]
-      }
-    ],
-    "parameter": [
-      {
-        type: 'list',
-        key: 'triggerIds',
-        list: triggerParam4 //list of triggers
-      }
-    ]
-   };
 
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
 
-   const reqBodyScrollAll = {
-    "name": triggerName,
-    "type": 'scrollDepth',
-    "parameter": [
-      {
-        type: 'template',
-        key: 'verticalThresholdUnits',
-        value: 'PIXELS'
-      },
-      {
-        type: 'template',
-        key: 'horizontalThresholdsPercent',
-        value: '11'
-      },
-      { type: 'boolean', key: 'verticalThresholdOn', value: 'true' },
-      {
-        type: 'template',
-        key: 'triggerStartOption',
-        value: 'WINDOW_LOAD'
-      },
-      {
-        type: 'template',
-        key: 'verticalThresholdsPixels',
-        value: '1000'
-      },
-      { type: 'boolean', key: 'horizontalThresholdOn', value: 'true' },
-      {
-        type: 'template',
-        key: 'horizontalThresholdUnits',
-        value: 'PERCENT'
-      }
-    ]
-   };
-
-   const reqBodyScrollSome = {
-    "name": triggerName,
-    "type": 'scrollDepth',
-    "parameter": [
-      {
-        type: 'template',
-        key: 'verticalThresholdUnits',
-        value: 'PIXELS'
-      },
-      {
-        type: 'template',
-        key: 'horizontalThresholdsPercent',
-        value: '11'
-      },
-      { type: 'boolean', key: 'verticalThresholdOn', value: 'true' },
-      {
-        type: 'template',
-        key: 'triggerStartOption',
-        value: 'WINDOW_LOAD'
-      },
-      {
-        type: 'template',
-        key: 'verticalThresholdsPixels',
-        value: '1000'
-      },
-      { type: 'boolean', key: 'horizontalThresholdOn', value: 'true' },
-      {
-        type: 'template',
-        key: 'horizontalThresholdUnits',
-        value: 'PERCENT'
-      }
-    ],
-    "filter": [
-      {
-        type: 'triggerParam1', //contains, equal, regex, more than, less than etc.
-        parameter: [
-          {
-            type: 'template',
-            key: 'arg0',
-            value: 'triggerParam2' // {{event}}
-          },
-          { 
-            type: 'template', 
-            key: 'arg1', 
-            value: 'triggerParam3' // value
-          }
-        ]
-      }
-    ]
-   };
-
-
-
-   const requestBody = triggerType === 'pageview' && triggerCondition === 'all' ? reqBodyPageviewAll
-   : triggerType === 'pageview' && triggerCondition === 'some' ? reqBodyPageviewSome
-
-   : triggerType === 'scroll' && triggerCondition === 'all' ? reqBodyScrollAll
-   : triggerType === 'scroll' && triggerCondition === 'some' ? reqBodyScrollSome
-
-   : triggerType === 'trigger group' && triggerCondition === 'all' ? reqBodyTriggerGroupAll
-   : triggerType === 'trigger group' && triggerCondition === 'some' ? reqBodyTriggerGroupSome
-   /*
-   : triggerCondition === 'pageview equals' ? filterEquals
-   : triggerCondition === 'pageview contains' ? filterContains
-   : triggerCondition === 'pageview starts with' ? filterStartsWith
-   : triggerCondition === 'pageview does not equal' ? filterDoesNotEqual*/
-   : null;
-   
   // Create trigger
   const res = await gtm.accounts.containers.workspaces.triggers.create({
     parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
-           requestBody: requestBody
-         });
-    // console.log(res.data);
-    
-  }
+            requestBody: requestBody
+          });
+  
+}
 
 
 
+
+//DOM Ready
+export async function domReadyTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    "name": triggerName,
+    "type": 'domReady',
+   };
+
+   const reqBodyCondition = {
+    "name": triggerName,
+    "type": 'domReady',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      } 
+    ]
+   };
+
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+
+
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+  
+}
+
+
+//Window Loaded
+export async function windowLoadedTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    "name": triggerName,
+    "type": 'windowLoaded',
+   };
+
+   const reqBodyCondition = {
+    "name": triggerName,
+    "type": 'windowLoaded',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      } 
+    ]
+   };
+
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+
+
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+  
+}
+
+
+
+//Click - All Elements
+export async function clickAllElementTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    "name": triggerName,
+    "type": 'click',
+   };
+
+   const reqBodyCondition = {
+    "name": triggerName,
+    "type": 'click',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      } 
+    ]
+   };
+
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+  
+}
+
+
+//Click - Link Click
+export async function clickLinkTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    "name": triggerName,
+    "type": 'linkClick',
+   };
+
+   const reqBodyCondition = {
+    "name": triggerName,
+    "type": 'linkClick',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'contains',
+            parameter: [
+              {
+                type: 'template',
+                key: 'arg0',
+                value: '{{AEV - Element URL Hostname}}' //
+              },
+              { type: 'template', key: 'arg1', value: 'ddddd' }
+            ]
+          }
+        ]
+      } 
+    ],
+    waitForTags: { 
+      type: 'boolean',
+      value: 'true' //string of true or false
+    },
+    waitForTagsTimeout: { 
+      type: 'template', 
+      value: '2000' //string number in milliseconds
+    },
+    checkValidation: { 
+      type: 'boolean', 
+      value: 'true' //string of true or false
+    },
+    autoEventFilter: [ 
+      {
+        type: 'contains', // trigger condition
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: '{{AEV - Element URL Hostname}}'
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: 'wefss' 
+          }
+        ]
+      } 
+    ],
+   };
+
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+  
+}
 
 
 
@@ -220,6 +278,6 @@ export async function getTrigger(obj: triggerAuthDetails, triggerId: number ){
   console.log('***********************************************');
   console.log(res.data.filter.find((id: any) => id.parameter));
   console.log('***********************************************');  
-  console.log(res.data.parameter.find((id: any) => id.list));
+  //console.log(res.data.parameter.find((id: any) => id.list));
 
 }

@@ -25,7 +25,13 @@ import {
     createVisibilityVariable
 } from '@gtmComponents/variables';
 
-import {createTrigger, getTrigger, listTriggers} from '@gtmComponents/triggers';
+import { 
+    getTrigger, 
+    listTriggers,
+    pageviewTrigger,
+    domReadyTrigger,
+    windowLoadedTrigger
+} from '@gtmComponents/triggers';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -346,7 +352,7 @@ async function runSample() {
         //createUrlVariable(initialCred,'test url','QUERY','12341234')
 
         //Vis Var
-        createVisibilityVariable(initialCred,'vis','ID','#test','PERCENT' );
+        //createVisibilityVariable(initialCred,'vis','ID','#test','PERCENT' );
 
         
 
@@ -366,37 +372,42 @@ async function runSample() {
         //revertVariable(initialCred)
 
 
+
+
+
+
+
+
+
         /*********************TRIGGERS***********************/
 
-        /** There are params for does not equal regex etc
-         * 
-         * 
-         * Filter Types
-         * contains
-         * equals
-         * startsWith
-         * endsWith
-         * cssSelector
-         * matchRegex
-         * 
-         * 
-         * 
-         * 
-         * 
-         * 
-         * 
-         */
+
 
         
-        //const gtmTriggers = await listTriggers(initialCred);
-        //gtmTriggers
+        const gtmTriggers = await listTriggers(initialCred);
 
-        /*
-        const triggerName: string = 'test pageview - equals';
+        const triggerName: string = 'we';
         const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
 
         getTrigger(initialCred,triggerId)
-        */
+
+        //Pageview
+        //pageviewTrigger(initialCred,'pv test','contains',"{{Page Hostname}}", 'xyz')
+
+        //Dom Ready
+        //domReadyTrigger(initialCred, 'dom test','contains',"{{Page Hostname}}", 'xyz')
+
+        //Window loaded
+        //windowLoadedTrigger(initialCred, 'win load','contains',"{{Page Hostname}}", 'xyz')
+        
+
+
+
+
+
+
+
+
 
           /**
            * 
