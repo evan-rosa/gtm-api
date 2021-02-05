@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -25,10 +25,10 @@ const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
-/***************************************************************Create Variable***************************************************************/
+/*Create Variable***************************************************************/
 //Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
 //First Party Cookie
-async function createFirstPartyCookie(obj, varName, cookieName, decodeCookie, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createFirstPartyCookie(obj, varName, varParam1) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -38,147 +38,38 @@ async function createFirstPartyCookie(obj, varName, cookieName, decodeCookie, co
                 {
                     "type": "template",
                     "key": "name",
-                    "value": cookieName //cookieName
-                },
-                {
-                    type: 'boolean',
-                    key: 'decodeCookie',
-                    value: decodeCookie //optional value - string true/false (If enabled, the cookie value will be URI-decoded, e.g., the cookie 'xxx%3Dyyy' would become 'xxx=yyy'.)
+                    "value": varParam1 //required value
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createFirstPartyCookie = createFirstPartyCookie;
 //Auto Event Variable
-async function createAutoEventVariable(obj, varName, varType, urlComponentType, extraParam, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
-    let arr = {
-        type: 'template',
-        key: 'component',
-        value: urlComponentType
-    };
-    let hostStripWWW = {
-        type: 'boolean',
-        key: 'stripWww',
-        value: extraParam
-    };
-    //The last non-directory segment in the path will be stripped if it matches any of the default pages. For instance, if a default page is 'index.html' and the URL is 'http://a.com/x/index.html', the variable's value will be '/x/'.
-    let elementAttrName = {
-        type: 'template',
-        key: 'attribute',
-        value: urlComponentType
-    };
-    let defaultPage = {
-        type: 'list',
-        key: 'defaultPages',
-        list: [
-            {
-                type: 'template',
-                value: extraParam
-            }
-        ]
-    };
-    let queryKey = {
-        type: 'template',
-        key: 'queryKey',
-        value: extraParam
-    };
-    let affiliatedDomains = {
-        type: 'template',
-        key: 'affiliatedDomains',
-        value: extraParam
-    };
-    const varTypeVal = varType === 'element' ? 'ELEMENT'
-        : varType === 'element type' ? 'TAG_NAME'
-            : varType === 'element attr' ? 'ATTRIBUTE'
-                : varType === 'element classes' ? 'CLASSES'
-                    : varType === 'element target' ? 'TARGET'
-                        : varType === 'element text' ? 'TEXT'
-                            : varType === 'element url' ? 'URL'
-                                : varType === 'element id' ? 'ID'
-                                    : varType === 'history new url fragment' ? 'HISTORY_NEW_URL_FRAGMENT'
-                                        : varType === 'history old url fragment' ? 'HISTORY_OLD_URL_FRAGMENT'
-                                            : varType === 'history new state' ? 'HISTORY_NEW_STATE'
-                                                : varType === 'history old state' ? 'HISTORY_OLD_STATE'
-                                                    : varType === 'history change source' ? 'HISTORY_CHANGE_SOURCE'
-                                                        : null;
-    const param = varType === 'element url' ? arr
-        : null;
-    const addParam = urlComponentType === 'HOST' ? hostStripWWW
-        : urlComponentType === 'PATH' ? defaultPage
-            : urlComponentType === 'QUERY' ? queryKey
-                : urlComponentType === 'IS_OUTBOUND' ? affiliatedDomains
-                    : varType === 'element attr' ? elementAttrName
-                        : null;
-    const element = [
-        {
-            type: 'boolean',
-            key: 'setDefaultValue',
-            value: 'true'
-        },
-        {
-            type: 'template',
-            key: 'varType',
-            value: varTypeVal
-        },
-        {
-            type: 'template',
-            key: 'defaultValue',
-            value: '(AEV Not Set)'
-        },
-        param,
-        addParam
-    ];
+async function createAutoEventVariable(obj, varName, varType, varTypeValue) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
             "name": varName,
             "type": 'aev',
-            "parameter": element,
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "varType",
+                    "value": varType //required value
                 },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
+                {
+                    "type": "template",
+                    "key": "defaultValue",
+                    "value": varTypeValue //optional value - won't set in GTM. appears to be a bug.
                 }
-            }
+            ]
         }
     });
 }
 exports.createAutoEventVariable = createAutoEventVariable;
 //Constant String
-async function createConstantVariable(obj, varName, constantValue, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createConstantVariable(obj, varName, constantValue) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -190,32 +81,13 @@ async function createConstantVariable(obj, varName, constantValue, convertNullTo
                     "key": "value",
                     "value": constantValue //required value
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createConstantVariable = createConstantVariable;
 //Custom JS Variable
-async function createCustomJSVariable(obj, varName, functionValue, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createCustomJSVariable(obj, varName, functionValue) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -227,32 +99,13 @@ async function createCustomJSVariable(obj, varName, functionValue, convertNullTo
                     "key": "javascript",
                     "value": functionValue //required value
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createCustomJSVariable = createCustomJSVariable;
 //Data Layer Variable
-async function createDataLayerVariable(obj, varName, dataLayerValue, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createDataLayerVariable(obj, varName, dataLayerValue, dataLayerDefaultValue) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -265,46 +118,22 @@ async function createDataLayerVariable(obj, varName, dataLayerValue, convertNull
                     "value": dataLayerValue //required value
                 },
                 {
-                    type: 'boolean',
-                    key: 'setDefaultValue',
-                    value: 'true'
-                },
-                {
                     "type": "template",
                     "key": "defaultValue",
-                    "value": '(DLV - Not Set)' //optional value - won't set in GTM. appears to be a bug.
+                    "value": dataLayerDefaultValue //optional value - won't set in GTM. appears to be a bug.
                 },
                 {
                     "type": "integer",
                     "key": "dataLayerVersion",
                     "value": "2"
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createDataLayerVariable = createDataLayerVariable;
 //DOM Element
-async function createDomElementVariable(obj, varName, elementIdVal, attributeNameVal, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createDomElementVariable(obj, varName, domValue, domDefaultValue) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -314,63 +143,20 @@ async function createDomElementVariable(obj, varName, elementIdVal, attributeNam
                 {
                     "type": "template",
                     "key": "elementId",
-                    "value": elementIdVal //required value
+                    "value": domValue //required value
                 },
                 {
                     "type": "template",
                     "key": "attributeName",
-                    "value": attributeNameVal
+                    "value": domDefaultValue //optional value
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createDomElementVariable = createDomElementVariable;
 //HTTP Referrer
-async function createHttpVariable(obj, varName, urlComponentType, extraParam, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
-    let hostStripWWW = {
-        type: 'boolean',
-        key: 'stripWww',
-        value: extraParam
-    };
-    let defaultPage = {
-        type: 'list',
-        key: 'defaultPages',
-        list: [
-            {
-                type: 'template',
-                value: extraParam
-            }
-        ]
-    };
-    let queryKey = {
-        type: 'template',
-        key: 'queryKey',
-        value: extraParam
-    };
-    const addParam = urlComponentType === 'HOST' ? hostStripWWW
-        : urlComponentType === 'PATH' ? defaultPage
-            : urlComponentType === 'QUERY' ? queryKey
-                : null;
+async function createHttpVariable(obj, varName, httpValue) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -380,35 +166,15 @@ async function createHttpVariable(obj, varName, urlComponentType, extraParam, co
                 {
                     "type": "template",
                     "key": "component",
-                    "value": urlComponentType //required value
-                },
-                addParam
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
+                    "value": httpValue //required value
                 }
-            }
+            ]
         }
     });
 }
 exports.createHttpVariable = createHttpVariable;
 //JS Variable
-async function createJsVariable(obj, varName, varValue, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createJsVariable(obj, varName, varValue) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -420,32 +186,13 @@ async function createJsVariable(obj, varName, varValue, convertNullToValue, conv
                     "key": "name",
                     "value": varValue //required value
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createJsVariable = createJsVariable;
 //Google Analytics Setting Variable
-async function createSettingVariable(obj, varName, trackingId, cookieDomain, fieldsToSet, dimension, metric, contentGroup, displayAdFeatures, autoLinkDomains, useHashAutoLink, decorateFormsAutoLink, functionName, transportUrl, useDebugVersion, enableLinkId) {
+async function createSettingVariable(obj, varName, trackingId, cookieDomain, fieldsToSet, dimension, metric, varParam6, varParam7, varParam8, varParam9, varParam10, varParam11, varParam12, varParam13, varParam14) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -486,52 +233,52 @@ async function createSettingVariable(obj, varName, trackingId, cookieDomain, fie
                 {
                     type: 'list',
                     key: 'contentGroup',
-                    list: contentGroup // create on api-gtm.ts file
+                    list: varParam6 // create on api-gtm.ts file
                 },
                 // Enable Display Advertising Features 
                 {
                     type: 'boolean',
                     key: 'doubleClick',
-                    value: displayAdFeatures
+                    value: varParam7
                 },
                 //Cross Domain Tracking
                 {
                     type: 'template',
                     key: 'autoLinkDomains',
-                    value: autoLinkDomains //comma separated domains. Example, to track inbox.example.com and send.example.com enter example.com. If you want to track a specific subdomain include the subdomain
+                    value: varParam8 //comma separated domains. Example, to track inbox.example.com and send.example.com enter example.com. If you want to track a specific subdomain include the subdomain
                 },
                 {
                     type: 'boolean',
                     key: 'useHashAutoLink',
-                    value: useHashAutoLink // change value
+                    value: varParam9 // change value
                 },
                 {
                     type: 'boolean',
                     key: 'decorateFormsAutoLink',
-                    value: decorateFormsAutoLink //false
+                    value: varParam10 //false
                 },
                 //Global function name for GTM. Renames the global function used by the Universal Analytics Tag
                 {
                     type: 'template',
                     key: 'functionName',
-                    value: functionName
+                    value: varParam11
                 },
                 //The transport URL is the base URL where analytics requests will be sent.
                 {
                     type: 'template',
                     key: 'transportUrl',
-                    value: transportUrl
+                    value: varParam12
                 },
                 //Debug Version
                 {
                     type: 'boolean',
                     key: 'useDebugVersion',
-                    value: useDebugVersion // Change Value
+                    value: varParam13 // Change Value
                 },
                 //Enable Enhanced Link Attribution
                 { type: 'boolean',
                     key: 'enableLinkId',
-                    value: enableLinkId //Boolean
+                    value: varParam14 //Boolean
                 }
             ]
         }
@@ -539,7 +286,7 @@ async function createSettingVariable(obj, varName, trackingId, cookieDomain, fie
 }
 exports.createSettingVariable = createSettingVariable;
 //Lookup Table
-async function createLookupTableVariable(obj, varName, inputValue, keyValuePair, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createLookupTableVariable(obj, varName, inputValue, keyValuePair) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -561,32 +308,13 @@ async function createLookupTableVariable(obj, varName, inputValue, keyValuePair,
                     "key": "defaultValue",
                     "value": "MyDefaultValue" // Optional Value
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createLookupTableVariable = createLookupTableVariable;
 //Regex Lookup Table
-async function createRegexTableVariable(obj, varName, inputValue, keyValuePair, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createRegexTableVariable(obj, varName, inputValue, keyValuePair) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -608,56 +336,13 @@ async function createRegexTableVariable(obj, varName, inputValue, keyValuePair, 
                     "key": "defaultValue",
                     "value": "MyDefaultValue" // Optional Value
                 }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createRegexTableVariable = createRegexTableVariable;
 //URL Variable
-async function createUrlVariable(obj, varName, componentType, extraParam, customUrlSource, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
-    let hostStripWWW = {
-        type: 'boolean',
-        key: 'stripWww',
-        value: extraParam
-    };
-    let defaultPage = {
-        type: 'list',
-        key: 'defaultPages',
-        list: [
-            {
-                type: 'template',
-                value: extraParam
-            }
-        ]
-    };
-    let queryKey = {
-        type: 'template',
-        key: 'queryKey',
-        value: extraParam
-    };
-    const addParam = componentType === 'HOST' ? hostStripWWW
-        : componentType === 'PATH' ? defaultPage
-            : componentType === 'QUERY' ? queryKey
-                : null;
+async function createUrlVariable(obj, varName, componentType, customUrlSource) {
     const res = await gtm.accounts.containers.workspaces.variables.create({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: {
@@ -672,35 +357,15 @@ async function createUrlVariable(obj, varName, componentType, extraParam, custom
                 {
                     "type": "template",
                     "key": "customUrlSource",
-                    "value": customUrlSource //optional value - pick from list or variables
-                },
-                addParam
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
+                    "value": customUrlSource //optional value
                 }
-            }
+            ]
         }
     });
 }
 exports.createUrlVariable = createUrlVariable;
 //Element Visibility Variable
-async function createVisibilityVariable(obj, varName, selectorType, elementId, outputMethod, onScreenRatio, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
+async function createVisibilityVariable(obj, varName, elementId, outputMethod, selectorType, onScreenRatio) {
     const visScreenRatio = outputMethod === "BOOLEAN" ? { 'type': 'template', 'key': 'onScreenRatio', 'value': onScreenRatio }
         : null;
     const res = await gtm.accounts.containers.workspaces.variables.create({
@@ -725,65 +390,46 @@ async function createVisibilityVariable(obj, varName, selectorType, elementId, o
                     'value': selectorType //Selection Method (ID or CSS Selector)
                 },
                 visScreenRatio
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
-            }
+            ]
         }
     });
 }
 exports.createVisibilityVariable = createVisibilityVariable;
-/***************************************************************Delete Variable***************************************************************/
+//Delete GTM Variable
 async function deleteVariable(obj, variableId) {
     const res = await gtm.accounts.containers.workspaces.variables.delete({
         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
     });
 }
 exports.deleteVariable = deleteVariable;
-/***************************************************************Get Variable***************************************************************/
+// Get GTM Variable
 async function getVariable(obj, variableId) {
     const res = await gtm.accounts.containers.workspaces.variables.get({
         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
     });
-    console.log('***********************************************');
-    console.log(res.data);
-    console.log('***********************************************');
-    console.log(res.data.parameter.find((id) => id.list));
+    //console.log('***********************************************');
+    //console.log(res.data);
+    //console.log('***********************************************');
+    //console.log(res.data.parameter.find((id: any) => id.key === 'convertNullToValue').list);
+    //console.log('***********************************************');
+    //console.log(res.data.parameter.find((id: any) => id.key === 'convertNullToValue').list.find((id: any) => id.type === 'map').map);
 }
 exports.getVariable = getVariable;
-/***************************************************************List Variable***************************************************************/
+//List Variables
 async function listVariables(obj) {
     const res = await gtm.accounts.containers.workspaces.variables.list({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
     });
-    console.log(res.data);
     return res.data.variable;
 }
 exports.listVariables = listVariables;
-/***************************************************************Revert Variable***************************************************************/
+//Revert GTM Variable Changes
 async function revertVariable(obj, variableId) {
     const res = await gtm.accounts.containers.workspaces.variables.revert({
         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
     });
 }
 exports.revertVariable = revertVariable;
-/***************************************************************Update Variable***************************************************************/
 async function updateVariable(obj, variableId, varName, varType, varParamFormat, varParam1, varParam2, varParam3, varParam4, varParam5, varParam6, varParam7, varParam8, varParam9, varParam10, varParam11, varParam12, varParam13, varParam14) {
     //Save all gtm variable types as constant variable array objects to be called later
     //1st Party Cookie
