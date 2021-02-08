@@ -30,7 +30,9 @@ import {
     listTriggers,
     pageviewTrigger,
     domReadyTrigger,
-    windowLoadedTrigger
+    windowLoadedTrigger,
+    clickAllElementTrigger,
+    clickLinkTrigger
 } from '@gtmComponents/triggers';
 import * as dotenv from 'dotenv';
 
@@ -375,32 +377,24 @@ async function runSample() {
 
 
 
-
-
-
-
         /*********************TRIGGERS***********************/
-
-
-
         
-        const gtmTriggers = await listTriggers(initialCred);
-
-        const triggerName: string = 'we';
+        /**
+         * 
+         *       const gtmTriggers = await listTriggers(initialCred);
+        const triggerName: string = 'test 1';
         const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
 
         getTrigger(initialCred,triggerId)
+         */
+        const gtmTriggers = await listTriggers(initialCred);
+        const triggerName: string = 'test 1';
+        const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
 
-        //Pageview
-        //pageviewTrigger(initialCred,'pv test','contains',"{{Page Hostname}}", 'xyz')
-
-        //Dom Ready
-        //domReadyTrigger(initialCred, 'dom test','contains',"{{Page Hostname}}", 'xyz')
-
-        //Window loaded
-        //windowLoadedTrigger(initialCred, 'win load','contains',"{{Page Hostname}}", 'xyz')
+        getTrigger(initialCred,triggerId)
         
 
+        clickLinkTrigger(initialCred, 'test link','contains','{{DLV - Event Action}}', 'test','false','','true','contains','{{DLV - Button}}','test69');
 
 
 

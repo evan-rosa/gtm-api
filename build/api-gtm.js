@@ -300,16 +300,19 @@ async function runSample() {
         //Reverts changes to variable. If no changes occur revert will delete variable.
         //revertVariable(initialCred)
         /*********************TRIGGERS***********************/
+        /**
+         *
+         *       const gtmTriggers = await listTriggers(initialCred);
+        const triggerName: string = 'test 1';
+        const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
+
+        getTrigger(initialCred,triggerId)
+         */
         const gtmTriggers = await triggers_1.listTriggers(initialCred);
-        const triggerName = 'we';
+        const triggerName = 'test 1';
         const triggerId = await gtmTriggers.find((id) => id.name === triggerName).triggerId;
         triggers_1.getTrigger(initialCred, triggerId);
-        //Pageview
-        //pageviewTrigger(initialCred,'pv test','contains',"{{Page Hostname}}", 'xyz')
-        //Dom Ready
-        //domReadyTrigger(initialCred, 'dom test','contains',"{{Page Hostname}}", 'xyz')
-        //Window loaded
-        //windowLoadedTrigger(initialCred, 'win load','contains',"{{Page Hostname}}", 'xyz')
+        triggers_1.clickLinkTrigger(initialCred, 'test link', 'contains', '{{DLV - Event Action}}', 'test', 'false', '', 'true', 'contains', '{{DLV - Button}}', 'test69');
         /**
          *
          *

@@ -161,16 +161,28 @@ async function clickAllElementTrigger(obj, triggerName, triggerCondition, key, v
     const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
     // Create trigger
     const res = await gtm.accounts.containers.workspaces.triggers.create({
-        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
         requestBody: requestBody
     });
 }
 exports.clickAllElementTrigger = clickAllElementTrigger;
 //Click - Link Click
-async function clickLinkTrigger(obj, triggerName, triggerCondition, key, val) {
+async function clickLinkTrigger(obj, triggerName, triggerCondition, key, val, waitForTagsBool, waitForTagsTimeout, checkValidationBool, autoEventFilterCondition, autoEventFilterKey, autoEventFilterVal) {
     const reqBodyAll = {
         "name": triggerName,
         "type": 'linkClick',
+        waitForTags: {
+            type: 'boolean',
+            value: 'false' //string of true or false
+        },
+        waitForTagsTimeout: {
+            type: 'template',
+            value: '' //string number in milliseconds
+        },
+        checkValidation: {
+            type: 'boolean',
+            value: 'false' //string of true or false
+        }
     };
     const reqBodyCondition = {
         "name": triggerName,
@@ -194,38 +206,38 @@ async function clickLinkTrigger(obj, triggerName, triggerCondition, key, val) {
         ],
         waitForTags: {
             type: 'boolean',
-            value: 'true' //string of true or false
+            value: waitForTagsBool //string of true or false
         },
         waitForTagsTimeout: {
             type: 'template',
-            value: '2000' //string number in milliseconds
+            value: waitForTagsTimeout //string number in milliseconds
         },
         checkValidation: {
             type: 'boolean',
-            value: 'true' //string of true or false
+            value: checkValidationBool //string of true or false
         },
         autoEventFilter: [
             {
-                type: 'contains',
+                type: autoEventFilterCondition,
                 parameter: [
                     {
                         type: 'template',
                         key: 'arg0',
-                        value: '{{AEV - Element URL Hostname}}'
+                        value: autoEventFilterKey
                     },
                     {
                         type: 'template',
                         key: 'arg1',
-                        value: 'wefss'
+                        value: autoEventFilterVal
                     }
                 ]
             }
         ],
     };
-    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
+    const requestBody = waitForTagsBool && waitForTagsTimeout || checkValidationBool ? reqBodyCondition : reqBodyAll;
     // Create trigger
     const res = await gtm.accounts.containers.workspaces.triggers.create({
-        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
         requestBody: requestBody
     });
 }
@@ -235,7 +247,7 @@ async function listTriggers(obj) {
     const res = await gtm.accounts.containers.workspaces.triggers.list({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
     });
-    console.log('******************************************************************');
+    //console.log('******************************************************************');
     //console.log(res.data);
     return res.data.trigger;
 }
@@ -249,7 +261,7 @@ async function getTrigger(obj, triggerId) {
     console.log('***********************************************');
     console.log(res.data);
     console.log('***********************************************');
-    console.log(res.data.filter.find((id) => id.parameter));
+    //console.log(res.data.filter.find((id: any) => id.parameter));
     console.log('***********************************************');
     //console.log(res.data.parameter.find((id: any) => id.list));
 }
