@@ -309,10 +309,11 @@ async function runSample() {
         getTrigger(initialCred,triggerId)
          */
         const gtmTriggers = await triggers_1.listTriggers(initialCred);
-        const triggerName = 'test 1';
+        const triggerName = 'form';
         const triggerId = await gtmTriggers.find((id) => id.name === triggerName).triggerId;
         triggers_1.getTrigger(initialCred, triggerId);
-        triggers_1.clickLinkTrigger(initialCred, 'test link', 'contains', '{{DLV - Event Action}}', 'test', 'false', '', 'true', 'contains', '{{DLV - Button}}', 'test69');
+        //this function should only have one scroll type, either vertical or horizontal but not both. If both are applied then the values to measure engagement will persist across scroll types. In the example below, pixel measurements of 1000 and 2000 pixels will be applied to both horizontal and vertical scroll depths.
+        //scrollDepthTrigger(initialCred, 'test','DOM_READY','true','true','PIXELS', '2000, 1000');
         /**
          *
          *
