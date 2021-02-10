@@ -610,7 +610,7 @@ export async function scrollDepthTrigger(obj:triggerAuthDetails, triggerName: st
 
 
 //YouTube Trigger
-export async function youTubeTrigger(obj:triggerAuthDetails, triggerName: string, captureStart: string, captureComplete:string, capturePause: string, captureProgress: string, progressTimeOrPercent?: string, progressVal?: any, fixMissingApi?: string, triggerStartOption?: string, triggerCondition?: string, key?: string, val?: string) {
+export async function youTubeTrigger(obj:triggerAuthDetails, triggerName: string, triggerStartOption: string, fixMissingApi: string, captureStart: string, captureComplete:string, capturePause: string, captureProgress: string, progressTimeOrPercent?: string, progressVal?: any, triggerCondition?: string, key?: string, val?: string) {
 
   const progressThreshold = progressTimeOrPercent === 'PERCENTAGE' ? 'progressThresholdsPercent' : 'progressThresholdsTimeInSeconds';
 
@@ -626,7 +626,7 @@ export async function youTubeTrigger(obj:triggerAuthDetails, triggerName: string
       { 
         type: 'template', 
         key: 'radioButtonGroup1', 
-        value: progressTimeOrPercent //TIME or PERCENT
+        value: progressTimeOrPercent //TIME or PERCENTAGE
       }, 
       {
         type: 'template',
@@ -738,36 +738,301 @@ export async function youTubeTrigger(obj:triggerAuthDetails, triggerName: string
 
 
 
+//Custom Event
+export async function customEventTrigger(obj:triggerAuthDetails, triggerName: string, customEvent: string, useRegexMatching: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    name: triggerName,
+    type: 'customEvent',
+    customEventFilter: [ 
+      {
+      type: useRegexMatching, //matchRegex or equals
+      parameter: [
+        { 
+          type: 'template', 
+          key: 'arg0', 
+          value: '{{_event}}' 
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: customEvent 
+        }
+      ]
+    } 
+  ]
+  };
+
+   const reqBodyCondition = {
+    name: triggerName,
+    type: 'customEvent',
+    customEventFilter: [ 
+      {
+      type: useRegexMatching, //matchRegex or equals
+      parameter: [
+        { 
+          type: 'template', 
+          key: 'arg0', 
+          value: '{{_event}}' 
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: customEvent 
+        }
+      ]
+    } 
+  ],
+    filter: [ 
+      {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    } 
+  ]
+  };
+  
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+  
+}
 
 
 
 
+//History Change
+export async function historyChangeTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    name: triggerName,
+    type: 'historyChange'
+   };
+
+   const reqBodyCondition = {
+    name: triggerName,
+    type: 'historyChange',
+    filter: [ {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    } ],
+  };
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+  
+}
 
 
+//JavaScript Error
+export async function jsErrTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    name: triggerName,
+    type: 'jsError'
+   };
+
+   const reqBodyCondition = {
+    name: triggerName,
+    type: 'jsError',
+    filter: [ {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    } ],
+  };
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+}
+
+//Timer
+export async function timerTrigger(obj:triggerAuthDetails, triggerName: string, eventName: string, interval: string, limit:string, autoEventFilterCondition:string, autoEventFilterKey: string, autoEventFilterVal:string, triggerCondition?: string, key?: string, val?: string ) {
+
+  const reqBodyAll = {
+    name: triggerName,
+    type: 'timer',
+    eventName: { 
+      type: 'template', 
+      value: eventName //gtm.timer or variable
+    },
+    interval: { 
+      type: 'template', 
+      value: interval //milliseconds or variable
+    },
+    limit: { 
+      type: 'template', 
+      value: limit //milliseconds or variable
+    },
+    autoEventFilter: [ 
+      {
+      type: autoEventFilterCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: autoEventFilterKey
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: autoEventFilterVal
+        }
+      ]
+    } 
+  ]
+  };
+
+   const reqBodyCondition = {
+    name: triggerName,
+    type: 'timer',
+    eventName: { 
+      type: 'template', 
+      value: eventName //gtm.timer or variable
+    },
+    interval: { 
+      type: 'template', 
+      value: interval //milliseconds or variable
+    },
+    limit: { 
+      type: 'template', 
+      value: limit //milliseconds or variable
+    },
+    autoEventFilter: [ 
+      {
+      type: autoEventFilterCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: autoEventFilterKey
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: autoEventFilterVal
+        }
+      ]
+    } 
+  ],
+    filter: [ 
+      {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    }
+  ]
+  };
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+  
+}
 
 
+//Trigger Group
+export async function triggerGroupTrigger(obj:triggerAuthDetails, triggerName: string, triggerReference: any[], triggerCondition?: string, key?: string, val?: string ) {
 
+  const reqBodyAll = {
+    name: triggerName,
+    type: 'triggerGroup',
+    parameter: [ 
+    {
+      type: 'list',
+      key: 'triggerIds',
+      list: triggerReference
+    } 
+  ]
+  };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   const reqBodyCondition = {
+    name: triggerName,
+    type: 'triggerGroup',
+    parameter: [ 
+    {
+      type: 'list',
+      key: 'triggerIds',
+      list: triggerReference
+    } 
+  ],
+    filter: [ 
+      {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    }
+  ]
+  };
+  const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
+  // Create trigger
+  const res = await gtm.accounts.containers.workspaces.triggers.create({
+    parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+            requestBody: requestBody
+          });
+}
 
 /*********************************List Triggers**************************************/
 export async function listTriggers(obj:triggerAuthDetails) {
@@ -791,5 +1056,9 @@ export async function getTrigger(obj: triggerAuthDetails, triggerId: number ){
   console.log('***********************************************');
   console.log(res.data.filter.find((id: any) => id.parameter));
   console.log('***********************************************');  
+  console.log(res.data.parameter.find((id: any) => id.list));
+  console.log('***********************************************');  
+
+
   //console.log(res.data.autoEventFilter.find((id: any) => id.parameter));
 }

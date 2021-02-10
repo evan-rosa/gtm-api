@@ -19,7 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTrigger = exports.listTriggers = exports.youTubeTrigger = exports.scrollDepthTrigger = exports.formSubmitTrigger = exports.elementVisTrigger = exports.clickLinkTrigger = exports.clickAllElementTrigger = exports.windowLoadedTrigger = exports.domReadyTrigger = exports.pageviewTrigger = void 0;
+exports.getTrigger = exports.listTriggers = exports.triggerGroupTrigger = exports.timerTrigger = exports.jsErrTrigger = exports.historyChangeTrigger = exports.customEventTrigger = exports.youTubeTrigger = exports.scrollDepthTrigger = exports.formSubmitTrigger = exports.elementVisTrigger = exports.clickLinkTrigger = exports.clickAllElementTrigger = exports.windowLoadedTrigger = exports.domReadyTrigger = exports.pageviewTrigger = void 0;
 const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
@@ -569,7 +569,7 @@ async function scrollDepthTrigger(obj, triggerName, triggerFire, horizontalOn, v
 }
 exports.scrollDepthTrigger = scrollDepthTrigger;
 //YouTube Trigger
-async function youTubeTrigger(obj, triggerName, captureStart, captureComplete, capturePause, captureProgress, progressTimeOrPercent, progressVal, fixMissingApi, triggerStartOption, triggerCondition, key, val) {
+async function youTubeTrigger(obj, triggerName, triggerStartOption, fixMissingApi, captureStart, captureComplete, capturePause, captureProgress, progressTimeOrPercent, progressVal, triggerCondition, key, val) {
     const progressThreshold = progressTimeOrPercent === 'PERCENTAGE' ? 'progressThresholdsPercent' : 'progressThresholdsTimeInSeconds';
     const reqBodyAll = {
         name: triggerName,
@@ -583,7 +583,7 @@ async function youTubeTrigger(obj, triggerName, captureStart, captureComplete, c
             {
                 type: 'template',
                 key: 'radioButtonGroup1',
-                value: progressTimeOrPercent //TIME or PERCENT
+                value: progressTimeOrPercent //TIME or PERCENTAGE
             },
             {
                 type: 'template',
@@ -688,6 +688,283 @@ async function youTubeTrigger(obj, triggerName, captureStart, captureComplete, c
     });
 }
 exports.youTubeTrigger = youTubeTrigger;
+//Custom Event
+async function customEventTrigger(obj, triggerName, customEvent, useRegexMatching, triggerCondition, key, val) {
+    const reqBodyAll = {
+        name: triggerName,
+        type: 'customEvent',
+        customEventFilter: [
+            {
+                type: useRegexMatching,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: '{{_event}}'
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: customEvent
+                    }
+                ]
+            }
+        ]
+    };
+    const reqBodyCondition = {
+        name: triggerName,
+        type: 'customEvent',
+        customEventFilter: [
+            {
+                type: useRegexMatching,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: '{{_event}}'
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: customEvent
+                    }
+                ]
+            }
+        ],
+        filter: [
+            {
+                type: triggerCondition,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: key
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: val
+                    }
+                ]
+            }
+        ]
+    };
+    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
+    // Create trigger
+    const res = await gtm.accounts.containers.workspaces.triggers.create({
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: requestBody
+    });
+}
+exports.customEventTrigger = customEventTrigger;
+//History Change
+async function historyChangeTrigger(obj, triggerName, triggerCondition, key, val) {
+    const reqBodyAll = {
+        name: triggerName,
+        type: 'historyChange'
+    };
+    const reqBodyCondition = {
+        name: triggerName,
+        type: 'historyChange',
+        filter: [{
+                type: triggerCondition,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: key
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: val
+                    }
+                ]
+            }],
+    };
+    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
+    // Create trigger
+    const res = await gtm.accounts.containers.workspaces.triggers.create({
+        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: requestBody
+    });
+}
+exports.historyChangeTrigger = historyChangeTrigger;
+//JavaScript Error
+async function jsErrTrigger(obj, triggerName, triggerCondition, key, val) {
+    const reqBodyAll = {
+        name: triggerName,
+        type: 'jsError'
+    };
+    const reqBodyCondition = {
+        name: triggerName,
+        type: 'jsError',
+        filter: [{
+                type: triggerCondition,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: key
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: val
+                    }
+                ]
+            }],
+    };
+    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
+    // Create trigger
+    const res = await gtm.accounts.containers.workspaces.triggers.create({
+        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: requestBody
+    });
+}
+exports.jsErrTrigger = jsErrTrigger;
+//Timer
+async function timerTrigger(obj, triggerName, eventName, interval, limit, autoEventFilterCondition, autoEventFilterKey, autoEventFilterVal, triggerCondition, key, val) {
+    const reqBodyAll = {
+        name: triggerName,
+        type: 'timer',
+        eventName: {
+            type: 'template',
+            value: eventName //gtm.timer or variable
+        },
+        interval: {
+            type: 'template',
+            value: interval //milliseconds or variable
+        },
+        limit: {
+            type: 'template',
+            value: limit //milliseconds or variable
+        },
+        autoEventFilter: [
+            {
+                type: autoEventFilterCondition,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: autoEventFilterKey
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: autoEventFilterVal
+                    }
+                ]
+            }
+        ]
+    };
+    const reqBodyCondition = {
+        name: triggerName,
+        type: 'timer',
+        eventName: {
+            type: 'template',
+            value: eventName //gtm.timer or variable
+        },
+        interval: {
+            type: 'template',
+            value: interval //milliseconds or variable
+        },
+        limit: {
+            type: 'template',
+            value: limit //milliseconds or variable
+        },
+        autoEventFilter: [
+            {
+                type: autoEventFilterCondition,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: autoEventFilterKey
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: autoEventFilterVal
+                    }
+                ]
+            }
+        ],
+        filter: [
+            {
+                type: triggerCondition,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: key
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: val
+                    }
+                ]
+            }
+        ]
+    };
+    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
+    // Create trigger
+    const res = await gtm.accounts.containers.workspaces.triggers.create({
+        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: requestBody
+    });
+}
+exports.timerTrigger = timerTrigger;
+//Trigger Group
+async function triggerGroupTrigger(obj, triggerName, triggerReference, triggerCondition, key, val) {
+    const reqBodyAll = {
+        name: triggerName,
+        type: 'triggerGroup',
+        parameter: [
+            {
+                type: 'list',
+                key: 'triggerIds',
+                list: triggerReference
+            }
+        ]
+    };
+    const reqBodyCondition = {
+        name: triggerName,
+        type: 'triggerGroup',
+        parameter: [
+            {
+                type: 'list',
+                key: 'triggerIds',
+                list: triggerReference
+            }
+        ],
+        filter: [
+            {
+                type: triggerCondition,
+                parameter: [
+                    {
+                        type: 'template',
+                        key: 'arg0',
+                        value: key
+                    },
+                    {
+                        type: 'template',
+                        key: 'arg1',
+                        value: val
+                    }
+                ]
+            }
+        ]
+    };
+    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
+    // Create trigger
+    const res = await gtm.accounts.containers.workspaces.triggers.create({
+        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: requestBody
+    });
+}
+exports.triggerGroupTrigger = triggerGroupTrigger;
 /*********************************List Triggers**************************************/
 async function listTriggers(obj) {
     const res = await gtm.accounts.containers.workspaces.triggers.list({
@@ -708,6 +985,8 @@ async function getTrigger(obj, triggerId) {
     console.log(res.data);
     console.log('***********************************************');
     console.log(res.data.filter.find((id) => id.parameter));
+    console.log('***********************************************');
+    console.log(res.data.parameter.find((id) => id.list));
     console.log('***********************************************');
     //console.log(res.data.autoEventFilter.find((id: any) => id.parameter));
 }
