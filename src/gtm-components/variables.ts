@@ -780,7 +780,7 @@ export async function getVariable(obj: varAuthDetails, variableId: number ){
     path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
   });
   console.log('***********************************************');
-  console.log(res.data);
+  //console.log(res.data);
   console.log('***********************************************');
   //console.log(res.data.parameter.find((id: any) => id.list));
 
@@ -792,7 +792,7 @@ export async function listVariables(obj:varAuthDetails){
       const res = await gtm.accounts.containers.workspaces.variables.list({
         parent:'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
       });
-      console.log(res.data);
+      //console.log(res.data);
       
       return res.data.variable
 }
@@ -1085,7 +1085,7 @@ export async function updateVariable(obj:varAuthDetails, variableId: number,varN
             "formatValue": varParamFormat
             }   
          });
-         console.log(res.data);
+         //console.log(res.data);
          
   }
 

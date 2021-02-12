@@ -180,15 +180,15 @@ export async function clickLinkTrigger(obj:triggerAuthDetails, triggerName: stri
     "type": 'linkClick',
     waitForTags: { 
       type: 'boolean',
-      value: 'false' //string of true or false
+      value: waitForTagsBool //string of true or false
     },
     waitForTagsTimeout: { 
       type: 'template', 
-      value: '' //string number in milliseconds
+      value: waitForTagsTimeout //string number in milliseconds
     },
     checkValidation: { 
       type: 'boolean', 
-      value: 'false' //string of true or false
+      value: checkValidationBool //string of true or false
     }
    };
 
@@ -197,15 +197,15 @@ export async function clickLinkTrigger(obj:triggerAuthDetails, triggerName: stri
     "type": 'linkClick',
     waitForTags: { 
       type: 'boolean',
-      value: 'false' //string of true or false
+      value: waitForTagsBool //string of true or false
     },
     waitForTagsTimeout: { 
       type: 'template', 
-      value: '' //string number in milliseconds
+      value: waitForTagsTimeout //string number in milliseconds
     },
     checkValidation: { 
       type: 'boolean', 
-      value: 'false' //string of true or false
+      value: checkValidationBool //string of true or false
     },
     filter: [ //This trigger fires on
       {
@@ -290,11 +290,53 @@ export async function clickLinkTrigger(obj:triggerAuthDetails, triggerName: stri
 
 
 //Element Visibility
-export async function elementVisTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string, selectionMethod?: string, elementVal?: string, useOnScreenDuration?: string, domChangeListener?: string, firingFrequency?: string, onScreenRatio?: string, onScreenDuration?: string) {
+export async function elementVisTrigger(obj:triggerAuthDetails, triggerName: string, selectionMethod?: string, elementVal?: string, useOnScreenDuration?: string, domChangeListener?: string, firingFrequency?: string, onScreenRatio?: string, onScreenDuration?: string, FireOnSomeOrAllEvents?: string,triggerCondition?: string, key?: string, val?: string) {
 
   const selectorType = selectionMethod === 'elementId' ? 'ID' : 'CSS';
 
-  const requestBody = {
+  const requestAll = {
+    name: triggerName,
+    type: 'elementVisibility',
+    parameter: [
+      { 
+        type: 'template', 
+        key: selectionMethod, //elementId or elementSelector
+        value: elementVal 
+      },
+      { 
+        type: 'template', 
+        key: 'selectorType', 
+        value: selectorType
+      },
+      { 
+        type: 'boolean', 
+        key: 'useOnScreenDuration', 
+        value: useOnScreenDuration //Bool String
+      },
+      { 
+        type: 'boolean', 
+        key: 'useDomChangeListener', 
+        value: domChangeListener //Bool String
+      },
+      { 
+        type: 'template', 
+        key: 'firingFrequency', 
+        value: firingFrequency //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
+      },
+      { 
+        type: 'template', 
+        key: 'onScreenRatio', 
+        value: onScreenRatio //Minimum Percent Visible 
+      },
+      { 
+        type: 'template', 
+        key: 'onScreenDuration', 
+        value: onScreenDuration // Set minimum on-screen duration - String Bool
+      }
+    ]
+  };
+
+  const requestSome = {
     name: triggerName,
     type: 'elementVisibility',
     filter: [ 
@@ -353,6 +395,9 @@ export async function elementVisTrigger(obj:triggerAuthDetails, triggerName: str
     ]
   };
 
+  const requestBody = FireOnSomeOrAllEvents === 'all' ? requestAll
+  : FireOnSomeOrAllEvents === 'some' ? requestSome : null;
+
 
   // Create trigger
   const res = await gtm.accounts.containers.workspaces.triggers.create({
@@ -363,8 +408,9 @@ export async function elementVisTrigger(obj:triggerAuthDetails, triggerName: str
 }
 
 //Form Submission
-export async function formSubmitTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string, waitForTagsBool?:string, checkValidationBool?: string, waitForTagsTimeout?: string, autoEventFilterCondition?: string, autoEventFilterKey?: string, autoEventFilterVal?: string) {
+export async function formSubmitTrigger(obj:triggerAuthDetails, triggerName: string, waitForTagsBool?:string, checkValidationBool?: string, waitForTagsTimeout?: string, autoEventFilterCondition?: string, autoEventFilterKey?: string, autoEventFilterVal?: string, triggerCondition?: string, key?: string, val?: string) {
 
+  //All Forms
   const reqBodyAll = {
     "name": triggerName,
     "type": 'formSubmission',
@@ -382,6 +428,7 @@ export async function formSubmitTrigger(obj:triggerAuthDetails, triggerName: str
     }
    };
 
+  // Some Forms 
   const reqBodySomeForms = {
     "name": triggerName,
     "type": 'formSubmission',
@@ -415,7 +462,8 @@ export async function formSubmitTrigger(obj:triggerAuthDetails, triggerName: str
       }
     ]
    };
-
+  
+  //Some Forms with wait for tags or check validation 
   const reqBodyCondition = {
     name: triggerName,
     type: 'formSubmission',
@@ -1070,15 +1118,15 @@ export async function getTrigger(obj: triggerAuthDetails, triggerId: number ){
   const res = await gtm.accounts.containers.workspaces.triggers.get({
     path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/triggers/' + triggerId,
   });
-  /**
-   *   console.log('***********************************************');
+  
+  console.log('***********************************************');
   console.log(res.data);
   console.log('***********************************************');
   console.log(res.data.filter.find((id: any) => id.parameter));
   console.log('***********************************************');  
   console.log(res.data.parameter.find((id: any) => id.list));
   console.log('***********************************************');  
-   */
+   
 
 
 
@@ -1087,47 +1135,554 @@ export async function getTrigger(obj: triggerAuthDetails, triggerId: number ){
 
 
 /*********************************Update Trigger**************************************/
-/**
- * 
-export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, triggerName: string, triggerType: string){
 
-  const x = {
-              'autoEventFilter': [],
-              'checkValidation': {},
-              'containerId': '',
-              'continuousTimeMinMilliseconds': {},
-              'customEventFilter': [],
-              'eventName': {},
-              'filter': [],
-              'horizontalScrollPercentageList': {},
-              'interval': {},
-              'intervalSeconds': {},
-              'limit': {},
-              'maxTimerLengthSeconds': {},
-              'name': '',
-              'notes': '',
-              'parameter': [],
-              'parentFolderId': '',
-              'path': '',
-              'selector': {},
-              'tagManagerUrl': '',
-              'totalTimeMinMilliseconds': {},
-              'triggerId': '',
-              'type': '',
-              'uniqueTriggerId': {},
-              'verticalScrollPercentageList': {},
-              'visibilitySelector': {},
-              'visiblePercentageMax': {},
-              'visiblePercentageMin': {},
-              'waitForTags': {},
-              'waitForTagsTimeout': {},
-            }
+export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, triggerName: string, triggerType: string, triggerFiresOn: string,triggerCondition: string, key: string, val: string){
 
-    const requestBody = triggerType === 'k' ? k : null;
+  const pageviewAll = {
+    "name": triggerName,
+    "type": 'pageview',
+   };
+
+  const pageviewSome = {
+    "name": triggerName,
+    "type": 'pageview',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      } 
+    ]
+   }
+
+   const domAll = {
+    "name": triggerName,
+    "type": 'domReady',
+   };
+
+   const domSome = {
+    "name": triggerName,
+    "type": 'domReady',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      } 
+    ]
+   };
+
+
+   const windowAll = {
+    "name": triggerName,
+    "type": 'windowLoaded',
+   };
+
+   const windowSome = {
+    "name": triggerName,
+    "type": 'windowLoaded',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      } 
+    ]
+   };
+
+
+   const elementClickAll = {
+    "name": triggerName,
+    "type": 'click',
+   };
+
+   const elementClickSome = {
+    "name": triggerName,
+    "type": 'click',
+    filter: [ 
+      { 
+        type: triggerCondition, 
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      } 
+    ]
+   };
+
+
+   const linkClickAll = {
+    "name": triggerName,
+    "type": 'linkClick',
+    waitForTags: { 
+      type: 'boolean',
+      value: 'false' //string of true or false
+    },
+    waitForTagsTimeout: { 
+      type: 'template', 
+      value: '' //string number in milliseconds
+    },
+    checkValidation: { 
+      type: 'boolean', 
+      value: 'false' //string of true or false
+    }
+   };
+
+  const linkClickSome = {
+    "name": triggerName,
+    "type": 'linkClick',
+    waitForTags: { 
+      type: 'boolean',
+      value: 'false' //string of true or false
+    },
+    waitForTagsTimeout: { 
+      type: 'template', 
+      value: '' //string number in milliseconds
+    },
+    checkValidation: { 
+      type: 'boolean', 
+      value: 'false' //string of true or false
+    },
+    filter: [ //This trigger fires on
+      {
+        type: triggerCondition,
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key 
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val 
+          }
+        ]
+      }
+    ]
+   };
+
+   //Element Vis
+   const selectorType = selectionMethod === 'elementId' ? 'ID' : 'CSS';
+
+  const visAll = {
+    name: triggerName,
+    type: 'elementVisibility',
+    parameter: [
+      { 
+        type: 'template', 
+        key: selectionMethod, //elementId or elementSelector
+        value: elementVal 
+      },
+      { 
+        type: 'template', 
+        key: 'selectorType', 
+        value: selectorType
+      },
+      { 
+        type: 'boolean', 
+        key: 'useOnScreenDuration', 
+        value: useOnScreenDuration //Bool String
+      },
+      { 
+        type: 'boolean', 
+        key: 'useDomChangeListener', 
+        value: domChangeListener //Bool String
+      },
+      { 
+        type: 'template', 
+        key: 'firingFrequency', 
+        value: firingFrequency //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
+      },
+      { 
+        type: 'template', 
+        key: 'onScreenRatio', 
+        value: onScreenRatio //Minimum Percent Visible 
+      },
+      { 
+        type: 'template', 
+        key: 'onScreenDuration', 
+        value: onScreenDuration // Set minimum on-screen duration - String Bool
+      }
+    ]
+  };
+
+  const visSome = {
+    name: triggerName,
+    type: 'elementVisibility',
+    filter: [ 
+      {
+        type: triggerCondition,
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key //key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val //value
+          }
+        ]
+      }
+   ],
+    parameter: [
+      { 
+        type: 'template', 
+        key: selectionMethod, //elementId or elementSelector
+        value: elementVal 
+      },
+      { 
+        type: 'template', 
+        key: 'selectorType', 
+        value: selectorType
+      },
+      { 
+        type: 'boolean', 
+        key: 'useOnScreenDuration', 
+        value: useOnScreenDuration //Bool String
+      },
+      { 
+        type: 'boolean', 
+        key: 'useDomChangeListener', 
+        value: domChangeListener //Bool String
+      },
+      { 
+        type: 'template', 
+        key: 'firingFrequency', 
+        value: firingFrequency //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
+      },
+      { 
+        type: 'template', 
+        key: 'onScreenRatio', 
+        value: onScreenRatio //Minimum Percent Visible 
+      },
+      { 
+        type: 'template', 
+        key: 'onScreenDuration', 
+        value: onScreenDuration // Set minimum on-screen duration - String Bool
+      }
+    ]
+  };
+
+  //Forms
+   //All Forms
+   const formAll = {
+    "name": triggerName,
+    "type": 'formSubmission',
+    waitForTags: { 
+      type: 'boolean',
+      value: 'false' //string of true or false
+    },
+    waitForTagsTimeout: { 
+      type: 'template', 
+      value: '' //string number in milliseconds
+    },
+    checkValidation: { 
+      type: 'boolean', 
+      value: 'false' //string of true or false
+    }
+   };
+
+  // Some Forms 
+  const formSome = {
+    "name": triggerName,
+    "type": 'formSubmission',
+    waitForTags: { 
+      type: 'boolean',
+      value: 'false' //string of true or false
+    },
+    waitForTagsTimeout: { 
+      type: 'template', 
+      value: '' //string number in milliseconds
+    },
+    checkValidation: { 
+      type: 'boolean', 
+      value: 'false' //string of true or false
+    },
+    filter: [ 
+      {
+        type: triggerCondition,
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      }
+    ]
+   };
+  
+  //Some Forms with wait for tags or check validation 
+  const formCondition = {
+    name: triggerName,
+    type: 'formSubmission',
+    filter: [ 
+      {
+        type: triggerCondition,
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val
+          }
+        ]
+      }
+    ],
+    autoEventFilter: [ 
+      {
+        type: autoEventFilterCondition,
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: autoEventFilterKey
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: autoEventFilterVal
+          }
+        ]
+      }
+    ],
+    waitForTags: { 
+      type: 'boolean', 
+      value: waitForTagsBool //String Bool
+    },
+    checkValidation: { 
+      type: 'boolean', 
+      value: checkValidationBool // String Bool
+    },
+    waitForTagsTimeout: { 
+      type: 'template', 
+      value: waitForTagsTimeout //String in milliseconds 
+    },
+    uniqueTriggerId: { 
+      type: 'template' 
+    },
+  };
+
+  //Scroll
+  const vertUnitsMeasure = units === 'PERCENT' ? 'verticalThresholdsPercent': 'verticalThresholdsPixels';
+  
+  const horizontalUnitsMeasure = units === 'PERCENT' ? 'horizontalThresholdsPercent' :'horizontalThresholdsPixels';
+  
+  const scrollSome = {
+    name: triggerName,
+    type: 'scrollDepth',
+    filter: [ 
+      {
+        type: triggerCondition,
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          { 
+            type: 'template', 
+            key: 'arg1', 
+            value: val 
+          }
+        ]
+      }
+    ],
+    parameter: [
+      { 
+        type: 'boolean',
+        key: 'verticalThresholdOn', 
+        value: vertOn //Bool String
+      },
+      {
+        type: 'template',
+        key: 'verticalThresholdUnits', 
+        value: units //PERCENT or PIXELS
+      },
+      {
+        type: 'template',
+        key: vertUnitsMeasure, 
+        value: measurementValues // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
+      },
+
+
+      { 
+        type: 'boolean', 
+        key: 'horizontalThresholdOn', 
+        value: horizontalOn //Bool String
+      },
+      {
+        type: 'template',
+        key: 'horizontalThresholdsPercent',
+        value: units 
+      },
+      {
+        type: 'template',
+        key: horizontalUnitsMeasure,
+        value: measurementValues
+      },
+
+      {
+        type: 'template',
+        key: 'triggerStartOption',
+        value: triggerFire //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
+      }
+    ]
+  };
+
+
+  const scrollAll = {
+    name: triggerName,
+    type: 'scrollDepth',
+    parameter: [
+      { 
+        type: 'boolean',
+        key: 'verticalThresholdOn', 
+        value: vertOn //Bool String
+      },
+      {
+        type: 'template',
+        key: 'verticalThresholdUnits', 
+        value: units //PERCENT or PIXELS
+      },
+      {
+        type: 'template',
+        key: vertUnitsMeasure, 
+        value: measurementValues // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
+      },
+
+
+      { 
+        type: 'boolean',
+        key: 'horizontalThresholdOn', 
+        value: horizontalOn //Bool String
+      },
+      {
+        type: 'template',
+        key: 'horizontalThresholdUnits', 
+        value: units //PERCENT or PIXELS
+      },
+      {
+        type: 'template',
+        key: horizontalUnitsMeasure, 
+        value: measurementValues // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
+      },
+      
+
+      {
+        type: 'template',
+        key: 'triggerStartOption',
+        value: triggerFire //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
+      }
+    ]
+  };
+
+
+
+
+ 
+
+
+
+  const pageviewFrequency = triggerFiresOn === 'all' ? pageviewAll
+  : triggerFiresOn === 'some' ? pageviewSome
+  :null
+
+  const domFrequency = triggerFiresOn === 'all' ? domAll
+  : triggerFiresOn === 'some' ? domSome
+  :null
+
+  const windowFrequency = triggerFiresOn === 'all' ? windowAll
+  : triggerFiresOn === 'some' ? windowSome
+  :null
+
+  const elementClickFrequency = triggerFiresOn === 'all' ? elementClickAll
+  : triggerFiresOn === 'some' ? elementClickSome
+  :null
+
+  const linkClickFrequency = triggerFiresOn === 'all' ? linkClickAll
+  : triggerFiresOn === 'some' ? linkClickSome
+  :null
+
+  const visibilityFrequency = triggerFiresOn === 'all' ? visAll
+  : triggerFiresOn === 'some' ? visSome : null;
+
+  const formFrequency = waitForTagsBool && waitForTagsTimeout || checkValidationBool ? formCondition : triggerCondition ? formSome
+  : formAll
+
+  const scrollFrequency = triggerCondition ? scrollSome : scrollAll;
+
+
+
+
+
+
+
+
+  
+  const requestBody = triggerType === 'pageview' ? pageviewFrequency
+  : triggerType === 'dom' ? domFrequency
+  : triggerType === 'window' ? windowFrequency
+  : triggerType === 'element click' ? elementClickFrequency
+  : triggerType === 'link click' ? linkClickFrequency
+  : triggerType === 'visibility' ? visibilityFrequency
+  : triggerType === 'form' ? formFrequency
+  : triggerType === 'scroll' ? scrollFrequency
+
+  : null;
 
   const res = await gtm.accounts.containers.workspaces.triggers.update({
     path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/triggers/' + triggerId,
     requestBody: requestBody
   });
 }
- */

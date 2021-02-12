@@ -762,7 +762,7 @@ async function getVariable(obj, variableId) {
         path: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/variables/' + variableId,
     });
     console.log('***********************************************');
-    console.log(res.data);
+    //console.log(res.data);
     console.log('***********************************************');
     //console.log(res.data.parameter.find((id: any) => id.list));
 }
@@ -772,7 +772,7 @@ async function listVariables(obj) {
     const res = await gtm.accounts.containers.workspaces.variables.list({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
     });
-    console.log(res.data);
+    //console.log(res.data);
     return res.data.variable;
 }
 exports.listVariables = listVariables;
@@ -1057,6 +1057,6 @@ async function updateVariable(obj, variableId, varName, varType, varParamFormat,
             "formatValue": varParamFormat
         }
     });
-    console.log(res.data);
+    //console.log(res.data);
 }
 exports.updateVariable = updateVariable;
