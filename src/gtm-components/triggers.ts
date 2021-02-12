@@ -1034,31 +1034,100 @@ export async function triggerGroupTrigger(obj:triggerAuthDetails, triggerName: s
           });
 }
 
-/*********************************List Triggers**************************************/
-export async function listTriggers(obj:triggerAuthDetails) {
-     const res = await gtm.accounts.containers.workspaces.triggers.list({
-         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
-       });
-       //console.log('******************************************************************');
-       //console.log(res.data);
-       return res.data.trigger
-}
 
-
-/*********************************Get Trigger**************************************/
-export async function getTrigger(obj: triggerAuthDetails, triggerId: number ){
-  const res = await gtm.accounts.containers.workspaces.triggers.get({
+/*********************************Delete Triggers**************************************/
+export async function deleteTrigger(obj: triggerAuthDetails, triggerId: number ){
+  const res = await gtm.accounts.containers.workspaces.triggers.delete({
     path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/triggers/' + triggerId,
   });
   /** */
   console.log('***********************************************');
   console.log(res.data);
   console.log('***********************************************');
+}
+
+
+/*********************************List Triggers**************************************/
+export async function listTriggers(obj:triggerAuthDetails) {
+     const res = await gtm.accounts.containers.workspaces.triggers.list({
+         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+       });
+       console.log('******************************************************************');
+       console.log(res.data);
+       return res.data.trigger
+}
+
+/*********************************Revert Triggers**************************************/
+export async function revertTriggers(obj:triggerAuthDetails, triggerId: number){
+  const res = await gtm.accounts.containers.workspaces.variables.revert({
+   path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/triggers/' + triggerId,
+  });
+  console.log(res.data);
+}
+
+/*********************************Get Trigger**************************************/
+export async function getTrigger(obj: triggerAuthDetails, triggerId: number ){
+  const res = await gtm.accounts.containers.workspaces.triggers.get({
+    path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/triggers/' + triggerId,
+  });
+  /**
+   *   console.log('***********************************************');
+  console.log(res.data);
+  console.log('***********************************************');
   console.log(res.data.filter.find((id: any) => id.parameter));
   console.log('***********************************************');  
   console.log(res.data.parameter.find((id: any) => id.list));
   console.log('***********************************************');  
+   */
+
 
 
   //console.log(res.data.autoEventFilter.find((id: any) => id.parameter));
 }
+
+
+/*********************************Update Trigger**************************************/
+/**
+ * 
+export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, triggerName: string, triggerType: string){
+
+  const x = {
+              'autoEventFilter': [],
+              'checkValidation': {},
+              'containerId': '',
+              'continuousTimeMinMilliseconds': {},
+              'customEventFilter': [],
+              'eventName': {},
+              'filter': [],
+              'horizontalScrollPercentageList': {},
+              'interval': {},
+              'intervalSeconds': {},
+              'limit': {},
+              'maxTimerLengthSeconds': {},
+              'name': '',
+              'notes': '',
+              'parameter': [],
+              'parentFolderId': '',
+              'path': '',
+              'selector': {},
+              'tagManagerUrl': '',
+              'totalTimeMinMilliseconds': {},
+              'triggerId': '',
+              'type': '',
+              'uniqueTriggerId': {},
+              'verticalScrollPercentageList': {},
+              'visibilitySelector': {},
+              'visiblePercentageMax': {},
+              'visiblePercentageMin': {},
+              'waitForTags': {},
+              'waitForTagsTimeout': {},
+            }
+
+    const requestBody = triggerType === 'k' ? k : null;
+
+  const res = await gtm.accounts.containers.workspaces.triggers.update({
+    path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/triggers/' + triggerId,
+    requestBody: requestBody
+  });
+}
+ */

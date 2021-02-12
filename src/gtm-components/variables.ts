@@ -782,7 +782,7 @@ export async function getVariable(obj: varAuthDetails, variableId: number ){
   console.log('***********************************************');
   console.log(res.data);
   console.log('***********************************************');
-  console.log(res.data.parameter.find((id: any) => id.list));
+  //console.log(res.data.parameter.find((id: any) => id.list));
 
   
 }

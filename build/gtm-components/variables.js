@@ -764,7 +764,7 @@ async function getVariable(obj, variableId) {
     console.log('***********************************************');
     console.log(res.data);
     console.log('***********************************************');
-    console.log(res.data.parameter.find((id) => id.list));
+    //console.log(res.data.parameter.find((id: any) => id.list));
 }
 exports.getVariable = getVariable;
 /***************************************************************List Variable***************************************************************/
