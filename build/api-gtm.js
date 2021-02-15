@@ -300,19 +300,16 @@ async function runSample() {
         //Reverts changes to variable. If no changes occur revert will delete variable.
         //revertVariable(initialCred)
         /*********************TRIGGERS***********************/
-        /**
-         *
-         *       const gtmTriggers = await listTriggers(initialCred);
-        const triggerName: string = 'test 1';
-        const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
-
-        getTrigger(initialCred,triggerId)
-         */
+        const gtmTriggers = await triggers_1.listTriggers(initialCred);
+        const triggerName = 'test';
+        const triggerId = await gtmTriggers.find((id) => id.name === triggerName).triggerId;
+        triggers_1.updateTrigger(initialCred, triggerId, 'test', 'element click', 'all');
+        //getTrigger(initialCred,triggerId)
         //const gtmTriggers = await listTriggers(initialCred);
         //const triggerName: string = 't';
         //const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
         //getTrigger(initialCred,triggerId)
-        triggers_1.formSubmitTrigger(initialCred, 'test');
+        //formSubmitTrigger(initialCred,'test',)
         //deleteTrigger(initialCred,triggerId);
         //updateTrigger(initialCred,triggerId,'test','pageview','contains','{{DLV Button}}', '123123');
         //this function should only have one scroll type, either vertical or horizontal but not both. If both are applied then the values to measure engagement will persist across scroll types. In the example below, pixel measurements of 1000 and 2000 pixels will be applied to both horizontal and vertical scroll depths.

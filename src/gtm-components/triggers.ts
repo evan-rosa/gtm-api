@@ -1136,8 +1136,9 @@ export async function getTrigger(obj: triggerAuthDetails, triggerId: number ){
 
 /*********************************Update Trigger**************************************/
 
-export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, triggerName: string, triggerType: string, triggerFiresOn: string,triggerCondition: string, key: string, val: string){
+export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, triggerName: string, triggerType: string, triggerFiresOn: string, triggerCondition?: any, key?: any, val?: any, param1?: string, param2?: string, param3?: string, param4?: string, param5?: string, param6?: string, param7?: string, param8?: string){
 
+  //Pageview
   const pageviewAll = {
     "name": triggerName,
     "type": 'pageview',
@@ -1165,6 +1166,7 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     ]
    }
 
+   //DOM Ready
    const domAll = {
     "name": triggerName,
     "type": 'domReady',
@@ -1192,7 +1194,7 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     ]
    };
 
-
+   //Window Loaded
    const windowAll = {
     "name": triggerName,
     "type": 'windowLoaded',
@@ -1220,7 +1222,7 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     ]
    };
 
-
+   //Element Clicks
    const elementClickAll = {
     "name": triggerName,
     "type": 'click',
@@ -1248,7 +1250,7 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     ]
    };
 
-
+   //Link Click
    const linkClickAll = {
     "name": triggerName,
     "type": 'linkClick',
@@ -1301,7 +1303,7 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
    };
 
    //Element Vis
-   const selectorType = selectionMethod === 'elementId' ? 'ID' : 'CSS';
+   const selectorType = param1 === 'elementId' ? 'ID' : 'CSS';
 
   const visAll = {
     name: triggerName,
@@ -1309,8 +1311,8 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     parameter: [
       { 
         type: 'template', 
-        key: selectionMethod, //elementId or elementSelector
-        value: elementVal 
+        key: param1, //elementId or elementSelector
+        value: param2 
       },
       { 
         type: 'template', 
@@ -1320,27 +1322,27 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
       { 
         type: 'boolean', 
         key: 'useOnScreenDuration', 
-        value: useOnScreenDuration //Bool String
+        value: param3 //Bool String
       },
       { 
         type: 'boolean', 
         key: 'useDomChangeListener', 
-        value: domChangeListener //Bool String
+        value: param4 //Bool String
       },
       { 
         type: 'template', 
         key: 'firingFrequency', 
-        value: firingFrequency //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
+        value: param5 //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
       },
       { 
         type: 'template', 
         key: 'onScreenRatio', 
-        value: onScreenRatio //Minimum Percent Visible 
+        value: param6 //Minimum Percent Visible 
       },
       { 
         type: 'template', 
         key: 'onScreenDuration', 
-        value: onScreenDuration // Set minimum on-screen duration - String Bool
+        value: param7 // Set minimum on-screen duration - String Bool
       }
     ]
   };
@@ -1368,8 +1370,8 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     parameter: [
       { 
         type: 'template', 
-        key: selectionMethod, //elementId or elementSelector
-        value: elementVal 
+        key: param1, //elementId or elementSelector
+        value: param2 
       },
       { 
         type: 'template', 
@@ -1379,27 +1381,27 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
       { 
         type: 'boolean', 
         key: 'useOnScreenDuration', 
-        value: useOnScreenDuration //Bool String
+        value: param3 //Bool String
       },
       { 
         type: 'boolean', 
         key: 'useDomChangeListener', 
-        value: domChangeListener //Bool String
+        value: param4 //Bool String
       },
       { 
         type: 'template', 
         key: 'firingFrequency', 
-        value: firingFrequency //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
+        value: param5 //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
       },
       { 
         type: 'template', 
         key: 'onScreenRatio', 
-        value: onScreenRatio //Minimum Percent Visible 
+        value: param6 //Minimum Percent Visible 
       },
       { 
         type: 'template', 
         key: 'onScreenDuration', 
-        value: onScreenDuration // Set minimum on-screen duration - String Bool
+        value: param7 // Set minimum on-screen duration - String Bool
       }
     ]
   };
@@ -1481,32 +1483,32 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     ],
     autoEventFilter: [ 
       {
-        type: autoEventFilterCondition,
+        type: param1,
         parameter: [
           {
             type: 'template',
             key: 'arg0',
-            value: autoEventFilterKey
+            value: param2
           },
           { 
             type: 'template', 
             key: 'arg1', 
-            value: autoEventFilterVal
+            value: param3
           }
         ]
       }
     ],
     waitForTags: { 
       type: 'boolean', 
-      value: waitForTagsBool //String Bool
+      value: param4 //String Bool
     },
     checkValidation: { 
       type: 'boolean', 
-      value: checkValidationBool // String Bool
+      value: param5 // String Bool
     },
     waitForTagsTimeout: { 
       type: 'template', 
-      value: waitForTagsTimeout //String in milliseconds 
+      value: param6 //String in milliseconds 
     },
     uniqueTriggerId: { 
       type: 'template' 
@@ -1514,9 +1516,9 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
   };
 
   //Scroll
-  const vertUnitsMeasure = units === 'PERCENT' ? 'verticalThresholdsPercent': 'verticalThresholdsPixels';
+  const vertUnitsMeasure = param2 === 'PERCENT' ? 'verticalThresholdsPercent': 'verticalThresholdsPixels';
   
-  const horizontalUnitsMeasure = units === 'PERCENT' ? 'horizontalThresholdsPercent' :'horizontalThresholdsPixels';
+  const horizontalUnitsMeasure = param2 === 'PERCENT' ? 'horizontalThresholdsPercent' :'horizontalThresholdsPixels';
   
   const scrollSome = {
     name: triggerName,
@@ -1542,40 +1544,40 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
       { 
         type: 'boolean',
         key: 'verticalThresholdOn', 
-        value: vertOn //Bool String
+        value: param1 //Bool String
       },
       {
         type: 'template',
         key: 'verticalThresholdUnits', 
-        value: units //PERCENT or PIXELS
+        value: param2 //PERCENT or PIXELS
       },
       {
         type: 'template',
         key: vertUnitsMeasure, 
-        value: measurementValues // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
+        value: param3 // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
       },
 
 
       { 
         type: 'boolean', 
         key: 'horizontalThresholdOn', 
-        value: horizontalOn //Bool String
+        value: param4 //Bool String
       },
       {
         type: 'template',
         key: 'horizontalThresholdsPercent',
-        value: units 
+        value: param2 
       },
       {
         type: 'template',
         key: horizontalUnitsMeasure,
-        value: measurementValues
+        value: param5
       },
 
       {
         type: 'template',
         key: 'triggerStartOption',
-        value: triggerFire //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
+        value: param6 //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
       }
     ]
   };
@@ -1588,51 +1590,403 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
       { 
         type: 'boolean',
         key: 'verticalThresholdOn', 
-        value: vertOn //Bool String
+        value: param1 //Bool String
       },
       {
         type: 'template',
         key: 'verticalThresholdUnits', 
-        value: units //PERCENT or PIXELS
+        value: param2 //PERCENT or PIXELS
       },
       {
         type: 'template',
         key: vertUnitsMeasure, 
-        value: measurementValues // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
+        value: param3 // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
       },
 
 
       { 
         type: 'boolean',
         key: 'horizontalThresholdOn', 
-        value: horizontalOn //Bool String
+        value: param4 //Bool String
       },
       {
         type: 'template',
         key: 'horizontalThresholdUnits', 
-        value: units //PERCENT or PIXELS
+        value: param2 //PERCENT or PIXELS
       },
       {
         type: 'template',
         key: horizontalUnitsMeasure, 
-        value: measurementValues // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
+        value: param5 // percentage values (10, 25, 50, 75, 100) or pixel values (1000, 1500, 800) 
       },
       
 
       {
         type: 'template',
         key: 'triggerStartOption',
-        value: triggerFire //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
+        value: param6 //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
       }
     ]
   };
 
 
+  /////YouTube
+  const progressThreshold = param2 === 'PERCENTAGE' ? 'progressThresholdsPercent' : 'progressThresholdsTimeInSeconds';
+
+  const ytAll = {
+    name: triggerName,
+    type: 'youTubeVideo',
+    parameter: [
+      { 
+        type: 'boolean', 
+        key: 'captureProgress', 
+        value: param1 //String Bool 
+      },
+      { 
+        type: 'template', 
+        key: 'radioButtonGroup1', 
+        value: param2 //TIME or PERCENTAGE
+      }, 
+      {
+        type: 'template',
+        key: progressThreshold, //progressThresholdsTimeInSeconds
+        value: param3 // Percentages (10,25,50,75,90) and Time Thresholds in seconds (10, 15, 60)
+      },
+      { 
+        type: 'boolean', 
+        key: 'captureStart', //Capture when video has started
+        value: param4 //String Bool
+      },
+      { 
+        type: 'boolean', 
+        key: 'captureComplete', //Capture when video is finished
+        value: param5 //String Bool
+      },
+      { 
+        type: 'boolean', 
+        key: 'capturePause', //Capture video pause, seeking, and buffering
+        value: param6 //String Bool
+      },
+      {
+        type: 'boolean', 
+        key: 'fixMissingApi', 
+        value: param7 // String Bool 
+      },
+      { 
+        type: 'template', 
+        key: 'triggerStartOption', 
+        value: param8 //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
+      },
+    ]
+  };
 
 
- 
+   const ytSome = {
+    name: triggerName,
+    type: 'youTubeVideo',
+    filter: [ 
+      {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val
+        }
+      ]
+    } 
+  ],
+    parameter: [
+      { 
+        type: 'boolean', 
+        key: 'captureProgress', 
+        value: param1 //String Bool 
+      },
+      { 
+        type: 'template', 
+        key: 'radioButtonGroup1', 
+        value: param2 //TIME or PERCENT
+      }, 
+      {
+        type: 'template',
+        key: progressThreshold, //progressThresholdsTimeInSeconds
+        value: param3 // Percentages (10,25,50,75,90) and Time Thresholds in seconds (10, 15, 60)
+      },
+      { 
+        type: 'boolean', 
+        key: 'captureStart', //Capture when video has started
+        value: param4 //String Bool
+      },
+      { 
+        type: 'boolean', 
+        key: 'captureComplete', //Capture when video is finished
+        value: param5 //String Bool
+      },
+      { 
+        type: 'boolean', 
+        key: 'capturePause', //Capture video pause, seeking, and buffering
+        value: param6 //String Bool
+      },
+      {
+        type: 'boolean', 
+        key: 'fixMissingApi', 
+        value: param7 // String Bool 
+      },
+      { 
+        type: 'template', 
+        key: 'triggerStartOption', 
+        value: param8 //Enable this trigger on WINDOW_LOAD, DOM_READY, or CONTAINER_LOAD
+      },
+    ]
+  };
+
+  //Custom Event
+  const customEventAll = {
+    name: triggerName,
+    type: 'customEvent',
+    customEventFilter: [ 
+      {
+      type: param1, //matchRegex or equals
+      parameter: [
+        { 
+          type: 'template', 
+          key: 'arg0', 
+          value: '{{_event}}' 
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: param2 
+        }
+      ]
+    } 
+  ]
+  };
+
+   const customEventSome = {
+    name: triggerName,
+    type: 'customEvent',
+    customEventFilter: [ 
+      {
+      type: param1, //matchRegex or equals
+      parameter: [
+        { 
+          type: 'template', 
+          key: 'arg0', 
+          value: '{{_event}}' 
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: param2 
+        }
+      ]
+    } 
+  ],
+    filter: [ 
+      {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    } 
+  ]
+  };
+  
+  //History
+  const historyAll = {
+    name: triggerName,
+    type: 'historyChange'
+   };
+
+   const historySome = {
+    name: triggerName,
+    type: 'historyChange',
+    filter: [ {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    } ],
+  };
+
+  //JavaScript Error
+  const jsAll = {
+    name: triggerName,
+    type: 'jsError'
+   };
+
+   const jsSome = {
+    name: triggerName,
+    type: 'jsError',
+    filter: [ {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    } ],
+  };
 
 
+  //Timer
+  const timerAll = {
+    name: triggerName,
+    type: 'timer',
+    eventName: { 
+      type: 'template', 
+      value: param1 //gtm.timer or variable
+    },
+    interval: { 
+      type: 'template', 
+      value: param2 //milliseconds or variable
+    },
+    limit: { 
+      type: 'template', 
+      value: param3 //milliseconds or variable
+    },
+    autoEventFilter: [ 
+      {
+      type: param4,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: param5
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: param6
+        }
+      ]
+    } 
+  ]
+  };
+
+   const timerSome = {
+    name: triggerName,
+    type: 'timer',
+    eventName: { 
+      type: 'template', 
+      value: param1 //gtm.timer or variable
+    },
+    interval: { 
+      type: 'template', 
+      value: param2 //milliseconds or variable
+    },
+    limit: { 
+      type: 'template', 
+      value: param3 //milliseconds or variable
+    },
+    autoEventFilter: [ 
+      {
+      type: param4,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: param5
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: param6
+        }
+      ]
+    } 
+  ],
+    filter: [ 
+      {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    }
+  ]
+  };
+
+  //Timer Group
+  const timerGroupAll = {
+    name: triggerName,
+    type: 'triggerGroup',
+    parameter: [ 
+    {
+      type: 'list',
+      key: 'triggerIds',
+      list: param1
+    } 
+  ]
+  };
+
+   const timerGroupSome = {
+    name: triggerName,
+    type: 'triggerGroup',
+    parameter: [ 
+    {
+      type: 'list',
+      key: 'triggerIds',
+      list: param1
+    } 
+  ],
+    filter: [ 
+      {
+      type: triggerCondition,
+      parameter: [
+        {
+          type: 'template',
+          key: 'arg0',
+          value: key
+        },
+        { 
+          type: 'template', 
+          key: 'arg1', 
+          value: val 
+        }
+      ]
+    }
+  ]
+  };
 
   const pageviewFrequency = triggerFiresOn === 'all' ? pageviewAll
   : triggerFiresOn === 'some' ? pageviewSome
@@ -1657,19 +2011,24 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
   const visibilityFrequency = triggerFiresOn === 'all' ? visAll
   : triggerFiresOn === 'some' ? visSome : null;
 
-  const formFrequency = waitForTagsBool && waitForTagsTimeout || checkValidationBool ? formCondition : triggerCondition ? formSome
+  const formFrequency = param4 && param6 || param5 ? formCondition : triggerCondition ? formSome
   : formAll
 
   const scrollFrequency = triggerCondition ? scrollSome : scrollAll;
 
+  const ytFrequency = triggerCondition ? ytSome : ytAll
+
+  const customEventFrequency = triggerCondition ? customEventSome : customEventAll
+
+  const historyFrequency = triggerCondition ? historySome : historyAll
+
+  const jsFrequency = triggerCondition ? jsSome : jsAll
+
+  const timerFrequency = triggerCondition ? timerSome : timerAll
+
+  const timerGroupFrequency = triggerCondition ? timerGroupSome : timerGroupAll
 
 
-
-
-
-
-
-  
   const requestBody = triggerType === 'pageview' ? pageviewFrequency
   : triggerType === 'dom' ? domFrequency
   : triggerType === 'window' ? windowFrequency
@@ -1678,7 +2037,12 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
   : triggerType === 'visibility' ? visibilityFrequency
   : triggerType === 'form' ? formFrequency
   : triggerType === 'scroll' ? scrollFrequency
-
+  : triggerType === 'youtube' ? ytFrequency
+  : triggerType === 'custom' ? customEventFrequency
+  : triggerType === 'history' ? historyFrequency
+  : triggerType === 'js' ? jsFrequency
+  : triggerType === 'timer' ? timerFrequency
+  : triggerType === 'group' ? timerGroupFrequency
   : null;
 
   const res = await gtm.accounts.containers.workspaces.triggers.update({

@@ -392,21 +392,21 @@ async function runSample() {
 
         /*********************TRIGGERS***********************/
         
-        /**
-         * 
-         *       const gtmTriggers = await listTriggers(initialCred);
-        const triggerName: string = 'test 1';
+        const gtmTriggers = await listTriggers(initialCred);
+        const triggerName: string = 'test';
         const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
 
-        getTrigger(initialCred,triggerId)
-         */
+        updateTrigger(initialCred, triggerId, 'test','link click','some','contains','{{DLV - Button}}','12');
+
+        //getTrigger(initialCred,triggerId)
+ 
         //const gtmTriggers = await listTriggers(initialCred);
         //const triggerName: string = 't';
         //const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
-
+        
         //getTrigger(initialCred,triggerId)
 
-        formSubmitTrigger(initialCred,'test',)
+        //formSubmitTrigger(initialCred,'test',)
 
         //deleteTrigger(initialCred,triggerId);
         
