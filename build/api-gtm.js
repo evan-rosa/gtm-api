@@ -25,6 +25,7 @@ const containers_1 = require("@gtmComponents/containers");
 const workspace_1 = require("@gtmComponents/workspace");
 const variables_1 = require("@gtmComponents/variables");
 const triggers_1 = require("@gtmComponents/triggers");
+const tags_1 = require("@gtmComponents/tags");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 //If you need to change the gtm account ID, change it in the env file
@@ -71,7 +72,6 @@ async function runSample() {
             containerId: containerId,
         };
         const gtmVariables = await variables_1.listVariables(initialCred);
-        //gtmVariables
         //custom function for GTM variable - custom js
         const customJsVarFunction = "function() {\n return function(target: any, selector: any) {while(!target.matches(selector) && !target.matches(\"body\")){target = target.parentElement;}return target.matches(selector) ? target : undefined};\n}";
         //define rows and values for lookup table here.
@@ -300,10 +300,13 @@ async function runSample() {
         //Reverts changes to variable. If no changes occur revert will delete variable.
         //revertVariable(initialCred)
         /*********************TRIGGERS***********************/
+        //pageviewTrigger(initialCred,'test2','contains','{{DLV - Button}}', 'test')
         const gtmTriggers = await triggers_1.listTriggers(initialCred);
+        gtmTriggers;
         const triggerName = 'test';
         const triggerId = await gtmTriggers.find((id) => id.name === triggerName).triggerId;
-        triggers_1.updateTrigger(initialCred, triggerId, 'test', 'element click', 'all');
+        //updateTrigger(initialCred, triggerId, 'test','link click','some','contains','{{DLV - Button}}','12');
+        //pageviewTrigger(initialCred,'test1','contains','{{DLV - Button}}','test')
         //getTrigger(initialCred,triggerId)
         //const gtmTriggers = await listTriggers(initialCred);
         //const triggerName: string = 't';
@@ -420,6 +423,19 @@ async function runSample() {
          */
         //createTrigger(initialCred, 'test rrr','trigger group','some','contains','{{HTML ID}}','test');
         //createTrigger(initialCred, 'test rr33 rosa','trigger group','all');
+        /********************* Tags ***********************/
+        const gtmTags = await tags_1.listTags(initialCred);
+        const tagName = 'UA - Pageview - All';
+        const tagId = await gtmTags.find((id) => id.name === tagName).tagId;
+        //getTag(initialCred, tagId)
+        //deleteTag(initialCred,tagId)
+        tags_1.revertTag(initialCred, tagId);
+        /*     const gtmTriggers = await listTriggers(initialCred);
+        
+            gtmTriggers
+            
+            const triggerName: string = 'test';
+            const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId; */
     }
     catch (err) {
         console.log(err);

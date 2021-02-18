@@ -47,6 +47,13 @@ import {
     updateTrigger
 } from '@gtmComponents/triggers';
 
+import {
+    listTags,
+    getTag,
+    deleteTag,
+    revertTag
+} from '@gtmComponents/tags';
+
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -109,9 +116,7 @@ async function runSample() {
         };
 
 
-        const gtmVariables = await listVariables(initialCred); 
-        //gtmVariables
-        
+        const gtmVariables = await listVariables(initialCred);         
 
         //custom function for GTM variable - custom js
         const customJsVarFunction: any = "function() {\n return function(target: any, selector: any) {while(!target.matches(selector) && !target.matches(\"body\")){target = target.parentElement;}return target.matches(selector) ? target : undefined};\n}";
@@ -391,12 +396,18 @@ async function runSample() {
 
 
         /*********************TRIGGERS***********************/
+        //pageviewTrigger(initialCred,'test2','contains','{{DLV - Button}}', 'test')
         
         const gtmTriggers = await listTriggers(initialCred);
+
+        gtmTriggers
+        
         const triggerName: string = 'test';
         const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
 
-        updateTrigger(initialCred, triggerId, 'test','link click','some','contains','{{DLV - Button}}','12');
+        //updateTrigger(initialCred, triggerId, 'test','link click','some','contains','{{DLV - Button}}','12');
+
+        //pageviewTrigger(initialCred,'test1','contains','{{DLV - Button}}','test')
 
         //getTrigger(initialCred,triggerId)
  
@@ -530,6 +541,30 @@ async function runSample() {
 
       //createTrigger(initialCred, 'test rrr','trigger group','some','contains','{{HTML ID}}','test');
       //createTrigger(initialCred, 'test rr33 rosa','trigger group','all');
+
+
+    /********************* Tags ***********************/
+
+    const gtmTags = await listTags(initialCred);
+        
+    const tagName: string = 'UA - Pageview - All';
+    const tagId: number = await gtmTags.find((id: any) => id.name === tagName).tagId;
+
+    //getTag(initialCred, tagId)
+
+    //deleteTag(initialCred,tagId)
+
+    revertTag(initialCred,tagId)
+
+
+/*     const gtmTriggers = await listTriggers(initialCred);
+
+    gtmTriggers
+    
+    const triggerName: string = 'test';
+    const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId; */
+
+
 
         
         

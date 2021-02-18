@@ -12,35 +12,12 @@ interface triggerAuthDetails {
 
 /*********************************Create Triggers**************************************/
 
-//Pageview
+//Start Pageview
 export async function pageviewTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
 
-  const reqBodyAll = {
-    "name": triggerName,
-    "type": 'pageview',
-   };
+  const reqBodyAll = pageviewAll(triggerName);
 
-   const reqBodyCondition = {
-    "name": triggerName,
-    "type": 'pageview',
-    filter: [ 
-      { 
-        type: triggerCondition, 
-        parameter: [
-          {
-            type: 'template',
-            key: 'arg0',
-            value: key
-          },
-          { 
-            type: 'template', 
-            key: 'arg1', 
-            value: val
-          }
-        ]
-      } 
-    ]
-   };
+  const reqBodyCondition = pageviewSome(triggerName, triggerCondition, key, val);
   const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll
   // Create trigger
   const res = await gtm.accounts.containers.workspaces.triggers.create({
@@ -49,6 +26,39 @@ export async function pageviewTrigger(obj:triggerAuthDetails, triggerName: strin
           });
   
 }
+
+function pageviewSome(triggerName: string, triggerCondition: string | undefined, key: string | undefined, val: string | undefined) {
+  return {
+    "name": triggerName,
+    "type": 'pageview',
+    filter: [
+      {
+        type: triggerCondition,
+        parameter: [
+          {
+            type: 'template',
+            key: 'arg0',
+            value: key
+          },
+          {
+            type: 'template',
+            key: 'arg1',
+            value: val
+          }
+        ]
+      }
+    ]
+  };
+}
+
+export async function pageviewAll(triggerName: string) {
+  return {
+    "name": triggerName,
+    "type": 'pageview',
+  };
+}
+//End Pageview
+
 
 //DOM Ready
 export async function domReadyTrigger(obj:triggerAuthDetails, triggerName: string, triggerCondition?: string, key?: string, val?: string ) {
@@ -1305,47 +1315,7 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
    //Element Vis
    const selectorType = param1 === 'elementId' ? 'ID' : 'CSS';
 
-  const visAll = {
-    name: triggerName,
-    type: 'elementVisibility',
-    parameter: [
-      { 
-        type: 'template', 
-        key: param1, //elementId or elementSelector
-        value: param2 
-      },
-      { 
-        type: 'template', 
-        key: 'selectorType', 
-        value: selectorType
-      },
-      { 
-        type: 'boolean', 
-        key: 'useOnScreenDuration', 
-        value: param3 //Bool String
-      },
-      { 
-        type: 'boolean', 
-        key: 'useDomChangeListener', 
-        value: param4 //Bool String
-      },
-      { 
-        type: 'template', 
-        key: 'firingFrequency', 
-        value: param5 //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
-      },
-      { 
-        type: 'template', 
-        key: 'onScreenRatio', 
-        value: param6 //Minimum Percent Visible 
-      },
-      { 
-        type: 'template', 
-        key: 'onScreenDuration', 
-        value: param7 // Set minimum on-screen duration - String Bool
-      }
-    ]
-  };
+  const visAll = newFunction(triggerName, param1, param2, selectorType, param3, param4, param5, param6, param7);
 
   const visSome = {
     name: triggerName,
@@ -2050,3 +2020,47 @@ export async function updateTrigger(obj: triggerAuthDetails, triggerId: number, 
     requestBody: requestBody
   });
 }
+function newFunction(triggerName: string, param1: string | undefined, param2: string | undefined, selectorType: string, param3: string | undefined, param4: string | undefined, param5: string | undefined, param6: string | undefined, param7: string | undefined) {
+  return {
+    name: triggerName,
+    type: 'elementVisibility',
+    parameter: [
+      {
+        type: 'template',
+        key: param1,
+        value: param2
+      },
+      {
+        type: 'template',
+        key: 'selectorType',
+        value: selectorType
+      },
+      {
+        type: 'boolean',
+        key: 'useOnScreenDuration',
+        value: param3 //Bool String
+      },
+      {
+        type: 'boolean',
+        key: 'useDomChangeListener',
+        value: param4 //Bool String
+      },
+      {
+        type: 'template',
+        key: 'firingFrequency',
+        value: param5 //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
+      },
+      {
+        type: 'template',
+        key: 'onScreenRatio',
+        value: param6 //Minimum Percent Visible 
+      },
+      {
+        type: 'template',
+        key: 'onScreenDuration',
+        value: param7
+      }
+    ]
+  };
+}
+

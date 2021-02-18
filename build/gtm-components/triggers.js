@@ -19,20 +19,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTrigger = exports.getTrigger = exports.revertTriggers = exports.listTriggers = exports.deleteTrigger = exports.triggerGroupTrigger = exports.timerTrigger = exports.jsErrTrigger = exports.historyChangeTrigger = exports.customEventTrigger = exports.youTubeTrigger = exports.scrollDepthTrigger = exports.formSubmitTrigger = exports.elementVisTrigger = exports.clickLinkTrigger = exports.clickAllElementTrigger = exports.windowLoadedTrigger = exports.domReadyTrigger = exports.pageviewTrigger = void 0;
+exports.updateTrigger = exports.getTrigger = exports.revertTriggers = exports.listTriggers = exports.deleteTrigger = exports.triggerGroupTrigger = exports.timerTrigger = exports.jsErrTrigger = exports.historyChangeTrigger = exports.customEventTrigger = exports.youTubeTrigger = exports.scrollDepthTrigger = exports.formSubmitTrigger = exports.elementVisTrigger = exports.clickLinkTrigger = exports.clickAllElementTrigger = exports.windowLoadedTrigger = exports.domReadyTrigger = exports.pageviewAll = exports.pageviewTrigger = void 0;
 const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
 /*********************************Create Triggers**************************************/
-//Pageview
+//Start Pageview
 async function pageviewTrigger(obj, triggerName, triggerCondition, key, val) {
-    const reqBodyAll = {
-        "name": triggerName,
-        "type": 'pageview',
-    };
-    const reqBodyCondition = {
+    const reqBodyAll = pageviewAll(triggerName);
+    const reqBodyCondition = pageviewSome(triggerName, triggerCondition, key, val);
+    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
+    // Create trigger
+    const res = await gtm.accounts.containers.workspaces.triggers.create({
+        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: requestBody
+    });
+}
+exports.pageviewTrigger = pageviewTrigger;
+function pageviewSome(triggerName, triggerCondition, key, val) {
+    return {
         "name": triggerName,
         "type": 'pageview',
         filter: [
@@ -53,14 +60,15 @@ async function pageviewTrigger(obj, triggerName, triggerCondition, key, val) {
             }
         ]
     };
-    const requestBody = triggerCondition ? reqBodyCondition : reqBodyAll;
-    // Create trigger
-    const res = await gtm.accounts.containers.workspaces.triggers.create({
-        parent: 'accounts/' + gtmAcctID + '/' + 'containers/' + obj.containerId + '/' + 'workspaces/' + `${obj.workspaceNumber}`,
-        requestBody: requestBody
-    });
 }
-exports.pageviewTrigger = pageviewTrigger;
+async function pageviewAll(triggerName) {
+    return {
+        "name": triggerName,
+        "type": 'pageview',
+    };
+}
+exports.pageviewAll = pageviewAll;
+//End Pageview
 //DOM Ready
 async function domReadyTrigger(obj, triggerName, triggerCondition, key, val) {
     const reqBodyAll = {
@@ -1213,47 +1221,7 @@ async function updateTrigger(obj, triggerId, triggerName, triggerType, triggerFi
     };
     //Element Vis
     const selectorType = param1 === 'elementId' ? 'ID' : 'CSS';
-    const visAll = {
-        name: triggerName,
-        type: 'elementVisibility',
-        parameter: [
-            {
-                type: 'template',
-                key: param1,
-                value: param2
-            },
-            {
-                type: 'template',
-                key: 'selectorType',
-                value: selectorType
-            },
-            {
-                type: 'boolean',
-                key: 'useOnScreenDuration',
-                value: param3 //Bool String
-            },
-            {
-                type: 'boolean',
-                key: 'useDomChangeListener',
-                value: param4 //Bool String
-            },
-            {
-                type: 'template',
-                key: 'firingFrequency',
-                value: param5 //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
-            },
-            {
-                type: 'template',
-                key: 'onScreenRatio',
-                value: param6 //Minimum Percent Visible 
-            },
-            {
-                type: 'template',
-                key: 'onScreenDuration',
-                value: param7 // Set minimum on-screen duration - String Bool
-            }
-        ]
-    };
+    const visAll = newFunction(triggerName, param1, param2, selectorType, param3, param4, param5, param6, param7);
     const visSome = {
         name: triggerName,
         type: 'elementVisibility',
@@ -1910,3 +1878,46 @@ async function updateTrigger(obj, triggerId, triggerName, triggerType, triggerFi
     });
 }
 exports.updateTrigger = updateTrigger;
+function newFunction(triggerName, param1, param2, selectorType, param3, param4, param5, param6, param7) {
+    return {
+        name: triggerName,
+        type: 'elementVisibility',
+        parameter: [
+            {
+                type: 'template',
+                key: param1,
+                value: param2
+            },
+            {
+                type: 'template',
+                key: 'selectorType',
+                value: selectorType
+            },
+            {
+                type: 'boolean',
+                key: 'useOnScreenDuration',
+                value: param3 //Bool String
+            },
+            {
+                type: 'boolean',
+                key: 'useDomChangeListener',
+                value: param4 //Bool String
+            },
+            {
+                type: 'template',
+                key: 'firingFrequency',
+                value: param5 //ONCE, ONCE_PER_ELEMENT, MANY_PER_ELEMENT
+            },
+            {
+                type: 'template',
+                key: 'onScreenRatio',
+                value: param6 //Minimum Percent Visible 
+            },
+            {
+                type: 'template',
+                key: 'onScreenDuration',
+                value: param7
+            }
+        ]
+    };
+}
