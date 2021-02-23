@@ -19,19 +19,92 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.revertTag = exports.deleteTag = exports.getTag = exports.listTags = void 0;
+exports.revertTag = exports.deleteTag = exports.getTag = exports.listTags = exports.uaTag = void 0;
 const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
 /*********************************Create Tags**************************************/
+async function uaTag(obj, tagName, trackType, optionType, firingTriggerId, blockingTriggerId, tagFiringOption, fieldsToSet, dimension, metric, contentGroup, doubleClick, autoLinkDomains, useHashAutoLink, decorateFormsAutoLink, useDebugVersion, enableLinkId, tagFiringPriority, setupTagName, setupTagStop, teardownTagName, teardownTagStop, monitoringMetadataTagNameKey, monitoringMetadata) {
+    const pageviewParam = [
+        { type: 'template', key: 'trackType', value: 'TRACK_PAGEVIEW' },
+        {
+            type: 'template',
+            key: 'gaSettings',
+            value: '{{UA - Settings - All - Generic}}'
+        },
+        { type: 'boolean', key: 'overrideGaSettings', value: 'false' }
+    ];
+    const pageviewOverride = [
+        { type: 'template', key: 'trackType', value: 'TRACK_PAGEVIEW' },
+        {
+            type: 'template',
+            key: 'gaSettings',
+            value: '{{UA - Settings - All - Generic}}'
+        },
+        { type: 'boolean', key: 'overrideGaSettings', value: 'true' },
+        { type: 'list', key: 'fieldsToSet', list: fieldsToSet },
+        { type: 'list', key: 'dimension', list: dimension },
+        { type: 'list', key: 'metric', list: metric },
+        { type: 'list', key: 'contentGroup', list: contentGroup },
+        { type: 'boolean', key: 'doubleClick', value: doubleClick },
+        {
+            type: 'template',
+            key: 'autoLinkDomains',
+            value: autoLinkDomains
+        },
+        { type: 'boolean', key: 'useHashAutoLink', value: useHashAutoLink },
+        { type: 'boolean', key: 'decorateFormsAutoLink', value: decorateFormsAutoLink },
+        { type: 'boolean', key: 'useDebugVersion', value: useDebugVersion },
+        { type: 'boolean', key: 'enableLinkId', value: enableLinkId }
+    ];
+    const param = optionType === 'standard' ? pageviewParam
+        : optionType === 'override setting' ? pageviewOverride
+            : new TypeError('Must provide optionType string of standard or override setting');
+    const pageview = {
+        name: tagName,
+        type: 'ua',
+        parameter: param,
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId,
+        tagFiringOption: tagFiringOption,
+        monitoringMetadata: { type: 'map' }
+    };
+    const pageviewAdvanced = {
+        name: tagName,
+        type: 'ua',
+        parameter: param,
+        priority: { type: 'integer', value: tagFiringPriority },
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId,
+        setupTag: [{ tagName: setupTagName, stopOnSetupFailure: setupTagStop }],
+        teardownTag: [
+            {
+                tagName: teardownTagName,
+                stopTeardownOnFailure: teardownTagStop
+            }
+        ],
+        tagFiringOption: 'oncePerEvent',
+        monitoringMetadata: monitoringMetadata,
+        monitoringMetadataTagNameKey: monitoringMetadataTagNameKey
+    };
+    const reqBody = trackType === 'pageview' ? pageview
+        : trackType === 'pageview advanced' ? pageviewAdvanced
+            : null;
+    const res = await gtm.accounts.containers.workspaces.tags.create({
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: reqBody
+    });
+    console.log(res.data);
+    return res.data.tag;
+}
+exports.uaTag = uaTag;
 /*********************************List Tags**************************************/
 async function listTags(obj) {
     const res = await gtm.accounts.containers.workspaces.tags.list({
         parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
     });
-    console.log(res.data);
     return res.data.tag;
 }
 exports.listTags = listTags;
@@ -43,9 +116,7 @@ async function getTag(obj, tagId) {
     console.log('***********************************************');
     console.log(res.data);
     console.log('***********************************************');
-    console.log(res.data.filter.find((id) => id.parameter));
-    console.log('***********************************************');
-    console.log(res.data.parameter.find((id) => id.list));
+    console.log(res.data.monitoringMetadata);
     console.log('***********************************************');
 }
 exports.getTag = getTag;
@@ -54,9 +125,6 @@ async function deleteTag(obj, tagId) {
     const res = await gtm.accounts.containers.workspaces.tags.delete({
         path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/tags/' + tagId,
     });
-    console.log('***********************************************');
-    console.log(res.data);
-    console.log('***********************************************');
 }
 exports.deleteTag = deleteTag;
 /*********************************Revert Tag**************************************/
@@ -64,6 +132,5 @@ async function revertTag(obj, tagId) {
     const res = await gtm.accounts.containers.workspaces.tags.revert({
         path: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}` + '/tags/' + tagId,
     });
-    console.log(res.data);
 }
 exports.revertTag = revertTag;

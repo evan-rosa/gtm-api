@@ -51,10 +51,12 @@ import {
     listTags,
     getTag,
     deleteTag,
-    revertTag
+    revertTag,
+    uaTag
 } from '@gtmComponents/tags';
 
 import * as dotenv from 'dotenv';
+import { firebase } from 'googleapis/build/src/apis/firebase';
 
 dotenv.config();
 
@@ -398,12 +400,10 @@ async function runSample() {
         /*********************TRIGGERS***********************/
         //pageviewTrigger(initialCred,'test2','contains','{{DLV - Button}}', 'test')
         
-        const gtmTriggers = await listTriggers(initialCred);
-
-        gtmTriggers
+/*         const gtmTriggers = await listTriggers(initialCred);
         
         const triggerName: string = 'test';
-        const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId;
+        const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId; */
 
         //updateTrigger(initialCred, triggerId, 'test','link click','some','contains','{{DLV - Button}}','12');
 
@@ -547,15 +547,27 @@ async function runSample() {
 
     const gtmTags = await listTags(initialCred);
         
-    const tagName: string = 'UA - Pageview - All';
+    const tagName: string = 'test';
     const tagId: number = await gtmTags.find((id: any) => id.name === tagName).tagId;
 
-    //getTag(initialCred, tagId)
+    getTag(initialCred, tagId)
 
     //deleteTag(initialCred,tagId)
 
-    revertTag(initialCred,tagId)
-
+    //revertTag(initialCred,tagId)
+    const fireTagOn = [ '2147479553', '23' ];
+    const blockTagOn = [ '2147479553', '23' ];
+    const tagMetaData = {
+        type: 'map',
+        map: [
+          { type: 'template', key: 'data', value: 'test' },
+          { type: 'template', key: 'test3', value: 'test5' }
+        ]
+      };
+    //uaTag(initialCred,'123','pageview',fireTagOn,blockTagOn, 'false','false','false','false','false','false','0','UA - Event - Page Load Time', true,'UA - Event - Email', true)
+    //uaTag(initialCred, '456','pageview',fireTagOn,blockTagOn,'false',false,false,'false','false','false','false','false','0')
+    //uaTag(initialCred, '987','pageview',fireTagOn,blockTagOn,'oncePerEvent')
+    uaTag(initialCred,'123','pageview advanced','override setting',fireTagOn,blockTagOn,'oncePerEvent',gasFieldsToSet,gasCustomDimensions,gasCustomMetric,gasContentGroup,'true','false','false','false','true','true', '0','UA - Event - Email', true,'UA - Event - File Download', true,'abc',tagMetaData)
 
 /*     const gtmTriggers = await listTriggers(initialCred);
 

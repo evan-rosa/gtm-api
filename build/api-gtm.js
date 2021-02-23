@@ -24,7 +24,6 @@ const auth_1 = require("@gtmComponents/auth");
 const containers_1 = require("@gtmComponents/containers");
 const workspace_1 = require("@gtmComponents/workspace");
 const variables_1 = require("@gtmComponents/variables");
-const triggers_1 = require("@gtmComponents/triggers");
 const tags_1 = require("@gtmComponents/tags");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -301,10 +300,10 @@ async function runSample() {
         //revertVariable(initialCred)
         /*********************TRIGGERS***********************/
         //pageviewTrigger(initialCred,'test2','contains','{{DLV - Button}}', 'test')
-        const gtmTriggers = await triggers_1.listTriggers(initialCred);
-        gtmTriggers;
-        const triggerName = 'test';
-        const triggerId = await gtmTriggers.find((id) => id.name === triggerName).triggerId;
+        /*         const gtmTriggers = await listTriggers(initialCred);
+                
+                const triggerName: string = 'test';
+                const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId; */
         //updateTrigger(initialCred, triggerId, 'test','link click','some','contains','{{DLV - Button}}','12');
         //pageviewTrigger(initialCred,'test1','contains','{{DLV - Button}}','test')
         //getTrigger(initialCred,triggerId)
@@ -425,11 +424,24 @@ async function runSample() {
         //createTrigger(initialCred, 'test rr33 rosa','trigger group','all');
         /********************* Tags ***********************/
         const gtmTags = await tags_1.listTags(initialCred);
-        const tagName = 'UA - Pageview - All';
+        const tagName = 'test';
         const tagId = await gtmTags.find((id) => id.name === tagName).tagId;
-        //getTag(initialCred, tagId)
+        tags_1.getTag(initialCred, tagId);
         //deleteTag(initialCred,tagId)
-        tags_1.revertTag(initialCred, tagId);
+        //revertTag(initialCred,tagId)
+        const fireTagOn = ['2147479553', '23'];
+        const blockTagOn = ['2147479553', '23'];
+        const tagMetaData = {
+            type: 'map',
+            map: [
+                { type: 'template', key: 'data', value: 'test' },
+                { type: 'template', key: 'test3', value: 'test5' }
+            ]
+        };
+        //uaTag(initialCred,'123','pageview',fireTagOn,blockTagOn, 'false','false','false','false','false','false','0','UA - Event - Page Load Time', true,'UA - Event - Email', true)
+        //uaTag(initialCred, '456','pageview',fireTagOn,blockTagOn,'false',false,false,'false','false','false','false','false','0')
+        //uaTag(initialCred, '987','pageview',fireTagOn,blockTagOn,'oncePerEvent')
+        tags_1.uaTag(initialCred, '123', 'pageview advanced', 'override setting', fireTagOn, blockTagOn, 'oncePerEvent', gasFieldsToSet, gasCustomDimensions, gasCustomMetric, gasContentGroup, 'true', 'false', 'false', 'false', 'true', 'true', '0', 'UA - Event - Email', true, 'UA - Event - File Download', true, 'abc', tagMetaData);
         /*     const gtmTriggers = await listTriggers(initialCred);
         
             gtmTriggers
