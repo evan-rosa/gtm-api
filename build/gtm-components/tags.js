@@ -19,14 +19,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.revertTag = exports.deleteTag = exports.getTag = exports.listTags = exports.uaTag = void 0;
+exports.revertTag = exports.deleteTag = exports.getTag = exports.listTags = exports.uaEventTag = exports.uaPageviewTag = void 0;
 const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
 /*********************************Create Tags**************************************/
-async function uaTag(obj, tagName, trackType, optionType, firingTriggerId, blockingTriggerId, tagFiringOption, fieldsToSet, dimension, metric, contentGroup, doubleClick, autoLinkDomains, useHashAutoLink, decorateFormsAutoLink, useDebugVersion, enableLinkId, tagFiringPriority, setupTagName, setupTagStop, teardownTagName, teardownTagStop, monitoringMetadataTagNameKey, monitoringMetadata) {
+// PAGEVIEW TAG
+async function uaPageviewTag(obj, tagName, trackType, optionType, firingTriggerId, blockingTriggerId, tagFiringOption, fieldsToSet, dimension, metric, contentGroup, doubleClick, autoLinkDomains, useHashAutoLink, decorateFormsAutoLink, useDebugVersion, enableLinkId, tagFiringPriority, setupTagName, setupTagStop, teardownTagName, teardownTagStop, monitoringMetadataTagNameKey, monitoringMetadata) {
     const pageviewParam = [
         { type: 'template', key: 'trackType', value: 'TRACK_PAGEVIEW' },
         {
@@ -85,7 +86,7 @@ async function uaTag(obj, tagName, trackType, optionType, firingTriggerId, block
                 stopTeardownOnFailure: teardownTagStop
             }
         ],
-        tagFiringOption: 'oncePerEvent',
+        tagFiringOption: tagFiringOption,
         monitoringMetadata: monitoringMetadata,
         monitoringMetadataTagNameKey: monitoringMetadataTagNameKey
     };
@@ -99,7 +100,92 @@ async function uaTag(obj, tagName, trackType, optionType, firingTriggerId, block
     console.log(res.data);
     return res.data.tag;
 }
-exports.uaTag = uaTag;
+exports.uaPageviewTag = uaPageviewTag;
+//EVENT TAG
+async function uaEventTag(obj, tagName, trackType, optionType, firingTriggerId, blockingTriggerId, tagFiringOption, eventCategory, eventAction, eventLabel, eventValue, nonInteraction, fieldsToSet, dimension, metric, contentGroup, doubleClick, autoLinkDomains, useHashAutoLink, decorateFormsAutoLink, useDebugVersion, enableLinkId, tagFiringPriority, setupTagName, setupTagStop, teardownTagName, teardownTagStop, monitoringMetadataTagNameKey, monitoringMetadata) {
+    const eventParam = [
+        { type: 'template', key: 'trackType', value: 'TRACK_EVENT' },
+        { type: 'template', key: 'eventCategory', value: eventCategory },
+        { type: 'template', key: 'eventAction', value: eventAction },
+        { type: 'template', key: 'eventLabel', value: eventLabel },
+        { type: 'template', key: 'eventValue', value: eventValue },
+        { type: 'boolean', key: 'nonInteraction', value: nonInteraction },
+        { type: 'boolean', key: 'overrideGaSettings', value: 'false' },
+        {
+            type: 'template',
+            key: 'gaSettings',
+            value: '{{UA - Settings - All - Generic}}'
+        },
+    ];
+    const eventOverride = [
+        { type: 'template', key: 'trackType', value: 'TRACK_EVENT' },
+        { type: 'template', key: 'eventCategory', value: eventCategory },
+        { type: 'template', key: 'eventAction', value: eventAction },
+        { type: 'template', key: 'eventLabel', value: eventLabel },
+        { type: 'template', key: 'eventValue', value: eventValue },
+        { type: 'boolean', key: 'nonInteraction', value: nonInteraction },
+        { type: 'boolean', key: 'overrideGaSettings', value: 'true' },
+        {
+            type: 'template',
+            key: 'gaSettings',
+            value: '{{UA - Settings - All - Generic}}'
+        },
+        { type: 'list', key: 'fieldsToSet', list: fieldsToSet },
+        { type: 'list', key: 'dimension', list: dimension },
+        { type: 'list', key: 'metric', list: metric },
+        { type: 'list', key: 'contentGroup', list: contentGroup },
+        { type: 'boolean', key: 'doubleClick', value: doubleClick },
+        {
+            type: 'template',
+            key: 'autoLinkDomains',
+            value: autoLinkDomains
+        },
+        { type: 'boolean', key: 'useHashAutoLink', value: useHashAutoLink },
+        { type: 'boolean', key: 'decorateFormsAutoLink', value: decorateFormsAutoLink },
+        { type: 'boolean', key: 'useDebugVersion', value: useDebugVersion },
+        { type: 'boolean', key: 'enableLinkId', value: enableLinkId }
+    ];
+    const param = optionType === 'standard' ? eventParam
+        : optionType === 'override setting' ? eventOverride
+            : new TypeError('Must provide optionType string of standard or override setting');
+    const event = {
+        name: tagName,
+        type: 'ua',
+        parameter: param,
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId,
+        tagFiringOption: tagFiringOption,
+        monitoringMetadata: { type: 'map' }
+    };
+    const eventAdvanced = {
+        name: tagName,
+        type: 'ua',
+        parameter: param,
+        priority: { type: 'integer', value: tagFiringPriority },
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId,
+        setupTag: [{ tagName: setupTagName, stopOnSetupFailure: setupTagStop }],
+        teardownTag: [
+            {
+                tagName: teardownTagName,
+                stopTeardownOnFailure: teardownTagStop
+            }
+        ],
+        tagFiringOption: tagFiringOption,
+        monitoringMetadata: monitoringMetadata,
+        monitoringMetadataTagNameKey: monitoringMetadataTagNameKey
+    };
+    const reqBody = trackType === 'event' ? event
+        : trackType === 'event advanced' ? eventAdvanced
+            : null;
+    const res = await gtm.accounts.containers.workspaces.tags.create({
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: reqBody
+    });
+    console.log(res.data);
+    return res.data.tag;
+}
+exports.uaEventTag = uaEventTag;
 /*********************************List Tags**************************************/
 async function listTags(obj) {
     const res = await gtm.accounts.containers.workspaces.tags.list({

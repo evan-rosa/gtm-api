@@ -438,16 +438,13 @@ async function runSample() {
                 { type: 'template', key: 'test3', value: 'test5' }
             ]
         };
-        //uaTag(initialCred,'123','pageview',fireTagOn,blockTagOn, 'false','false','false','false','false','false','0','UA - Event - Page Load Time', true,'UA - Event - Email', true)
-        //uaTag(initialCred, '456','pageview',fireTagOn,blockTagOn,'false',false,false,'false','false','false','false','false','0')
-        //uaTag(initialCred, '987','pageview',fireTagOn,blockTagOn,'oncePerEvent')
-        tags_1.uaTag(initialCred, '123', 'pageview advanced', 'override setting', fireTagOn, blockTagOn, 'oncePerEvent', gasFieldsToSet, gasCustomDimensions, gasCustomMetric, gasContentGroup, 'true', 'false', 'false', 'false', 'true', 'true', '0', 'UA - Event - Email', true, 'UA - Event - File Download', true, 'abc', tagMetaData);
-        /*     const gtmTriggers = await listTriggers(initialCred);
-        
-            gtmTriggers
-            
-            const triggerName: string = 'test';
-            const triggerId: number = await gtmTriggers.find((id: any) => id.name === triggerName).triggerId; */
+        //uaPageviewTag(initialCred,'123','pageview',fireTagOn,blockTagOn, 'false','false','false','false','false','false','0','UA - Event - Page Load Time', true,'UA - Event - Email', true)
+        //uaPageviewTag(initialCred, '456','pageview',fireTagOn,blockTagOn,'false',false,false,'false','false','false','false','false','0')
+        //uaPageviewTag(initialCred, '987','pageview',fireTagOn,blockTagOn,'oncePerEvent')
+        //uaPageviewTag(initialCred,'123','pageview advanced','override setting',fireTagOn,blockTagOn,'oncePerEvent',gasFieldsToSet,gasCustomDimensions,gasCustomMetric,gasContentGroup,'true','false','false','false','true','true', '0','UA - Event - Email', true,'UA - Event - File Download', true,'abc',tagMetaData)
+        //uaEventTag(initialCred,'tester','event','standard',fireTagOn, blockTagOn,'oncePerEvent','{{Click ID}}','ho','hi',null,'false')
+        //uaEventTag(initialCred,'tester','event','override setting',fireTagOn, blockTagOn,'oncePerEvent','{{Click ID}}','ho','hi',null,'false', gasFieldsToSet,gasCustomDimensions,gasCustomMetric,gasContentGroup,'true','false','false','false','true','false')
+        tags_1.uaEventTag(initialCred, 'tester', 'event advanced', 'standard', fireTagOn, blockTagOn, 'oncePerEvent', '{{Click ID}}', 'ho', 'hi', null, 'false', null, null, null, null, null, null, null, null, null, null, '0', 'UA - Event - Email', true, 'UA - Event - File Download', true, 'abc', tagMetaData);
     }
     catch (err) {
         console.log(err);
