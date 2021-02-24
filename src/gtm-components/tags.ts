@@ -12,7 +12,9 @@ interface tagAuthDetails {
 }
 
 
-/*********************************Create Tags**************************************/
+/*********************************Create UA Tags**************************************/
+
+//Tag functions only include pageview and event tags. There are also transaction, social, timing decorate link/form track types which have been omitted since we currently do not use these track types.
 
 // PAGEVIEW TAG
 export async function uaPageviewTag(obj:tagAuthDetails, tagName: string, trackType: string, optionType: string, firingTriggerId: any[], blockingTriggerId: any[], tagFiringOption: string, fieldsToSet?: any[] | null, dimension?: any[] | null, metric?: any[] | null, contentGroup?: any[] | null,   doubleClick?: string | null, autoLinkDomains?: string | null, useHashAutoLink?: string | null, decorateFormsAutoLink?: string | null, useDebugVersion?: string | null, enableLinkId?: string | null, tagFiringPriority?: string, setupTagName?: string, setupTagStop?: boolean, teardownTagName?: string, teardownTagStop?: boolean,  monitoringMetadataTagNameKey?: string,monitoringMetadata?: any){
@@ -198,9 +200,125 @@ export async function uaEventTag(obj:tagAuthDetails, tagName: string, trackType:
 
 
 
+/*********************************Create GA4 Tags**************************************/
+
+//GA4 Config Tag
+export async function ga4ConfigTag(obj:tagAuthDetails, tagName: string, trackType:string, measurementId: any, sendPageView: string, tagFiringOption: string, firingTriggerId: any[], blockingTriggerId?: any[], fieldsToSet?: any[] | null, userProperties?: any[] | null, setupTagName?: string, setupTagStop?: boolean, teardownTagName?: string, teardownTagStop?: boolean, priorityValue?: string, monitoringMetadataTagNameKey?: string,monitoringMetadata?: any){
+
+  const ga4 =  {
+    name: tagName,
+    type: 'gaawc',
+    parameter: [
+      { type: 'list', key: 'fieldsToSet', list: fieldsToSet },
+      { type: 'list', key: 'userProperties', list: userProperties },
+      { type: 'boolean', key: 'sendPageView', value: sendPageView },
+      { type: 'template', key: 'measurementId', value: measurementId }
+    ],
+    firingTriggerId: firingTriggerId,
+    blockingTriggerId: blockingTriggerId,
+    tagFiringOption: tagFiringOption
+  }
+
+  const ga4Advanced = {
+    name: tagName,
+    type: 'gaawc',
+    parameter: [
+      { type: 'list', key: 'fieldsToSet', list: fieldsToSet },
+      { type: 'list', key: 'userProperties', list: userProperties },
+      { type: 'boolean', key: 'sendPageView', value: sendPageView },
+      { type: 'template', key: 'measurementId', value: measurementId }
+    ],
+    priority: { type: 'integer', value: priorityValue },
+    setupTag: [ 
+      { 
+        tagName: setupTagName, 
+        stopOnSetupFailure: setupTagStop 
+      } 
+    ],
+    teardownTag: [
+      {
+        tagName: teardownTagName,
+        stopTeardownOnFailure: teardownTagStop
+      }
+    ],
+    tagFiringOption: tagFiringOption,
+    monitoringMetadata: monitoringMetadata,
+    monitoringMetadataTagNameKey: monitoringMetadataTagNameKey,
+    firingTriggerId: firingTriggerId,
+    blockingTriggerId: blockingTriggerId
+  }
+
+  const reqBody = trackType === 'standard' ? ga4 
+  : trackType === 'advanced' ? ga4Advanced
+  : null
 
 
+  const res = await gtm.accounts.containers.workspaces.tags.create({
+    parent:'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+    requestBody: reqBody
+  });
+  console.log(res.data);
+  return res.data.tag
+}
 
+//GA4 Event Tag
+export async function ga4EventTag(obj:tagAuthDetails, tagName: string, trackType:string, measurementId: any, eventName: string, eventParameters: any | null, userProperties: any | null, tagFiringOption: string, firingTriggerId: any[], blockingTriggerId?: any[],  setupTagName?: string, setupTagStop?: boolean, teardownTagName?: string, teardownTagStop?: boolean, priorityValue?: string, monitoringMetadataTagNameKey?: string,monitoringMetadata?: any){
+
+  const ga4 =  {
+    name: tagName,
+    type: 'gaawe',
+    parameter: [
+    { type: 'tagReference', key: 'measurementId', value: measurementId },
+    { type: 'template', key: 'eventName', value: eventName },
+    { type: 'list', key: 'eventParameters', list: eventParameters },
+    { type: 'list', key: 'userProperties', list: userProperties }
+  ],
+    firingTriggerId: firingTriggerId,
+    blockingTriggerId: blockingTriggerId,
+    tagFiringOption: tagFiringOption
+  }
+
+  const ga4Advanced = {
+    name: tagName,
+    type: 'gaawe',
+    parameter: [
+      { type: 'tagReference', key: 'measurementId', value: measurementId },
+      { type: 'template', key: 'eventName', value: eventName },
+      { type: 'list', key: 'eventParameters', list: eventParameters },
+      { type: 'list', key: 'userProperties', list: userProperties }
+    ],
+    priority: { type: 'integer', value: priorityValue },
+    setupTag: [ 
+      { 
+        tagName: setupTagName, 
+        stopOnSetupFailure: setupTagStop 
+      } 
+    ],
+    teardownTag: [
+      {
+        tagName: teardownTagName,
+        stopTeardownOnFailure: teardownTagStop
+      }
+    ],
+    tagFiringOption: tagFiringOption,
+    monitoringMetadata: monitoringMetadata,
+    monitoringMetadataTagNameKey: monitoringMetadataTagNameKey,
+    firingTriggerId: firingTriggerId,
+    blockingTriggerId: blockingTriggerId
+  }
+
+  const reqBody = trackType === 'standard' ? ga4 
+  : trackType === 'advanced' ? ga4Advanced
+  : null
+
+
+  const res = await gtm.accounts.containers.workspaces.tags.create({
+    parent:'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+    requestBody: reqBody
+  });
+  console.log(res.data);
+  return res.data.tag
+}
 
 
 
@@ -232,7 +350,7 @@ export async function getTag(obj: tagAuthDetails, tagId: number ){
   console.log('***********************************************');
   console.log(res.data);
   console.log('***********************************************');
-  console.log(res.data.monitoringMetadata);
+  console.log(res.data.parameter.find((id: any) => id.list).list.find((id: any) => id.map));
   console.log('***********************************************');
 
 }

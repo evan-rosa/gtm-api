@@ -19,13 +19,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.revertTag = exports.deleteTag = exports.getTag = exports.listTags = exports.uaEventTag = exports.uaPageviewTag = void 0;
+exports.revertTag = exports.deleteTag = exports.getTag = exports.listTags = exports.ga4EventTag = exports.ga4ConfigTag = exports.uaEventTag = exports.uaPageviewTag = void 0;
 const dotenv = __importStar(require("dotenv"));
 const { google } = require('googleapis');
 const gtm = google.tagmanager('v2');
 dotenv.config();
 const gtmAcctID = process.env.GTM_ACCOUNT_ID;
-/*********************************Create Tags**************************************/
+/*********************************Create UA Tags**************************************/
+//Tag functions only include pageview and event tags. There are also transaction, social, timing decorate link/form track types which have been omitted since we currently do not use these track types.
 // PAGEVIEW TAG
 async function uaPageviewTag(obj, tagName, trackType, optionType, firingTriggerId, blockingTriggerId, tagFiringOption, fieldsToSet, dimension, metric, contentGroup, doubleClick, autoLinkDomains, useHashAutoLink, decorateFormsAutoLink, useDebugVersion, enableLinkId, tagFiringPriority, setupTagName, setupTagStop, teardownTagName, teardownTagStop, monitoringMetadataTagNameKey, monitoringMetadata) {
     const pageviewParam = [
@@ -186,6 +187,115 @@ async function uaEventTag(obj, tagName, trackType, optionType, firingTriggerId, 
     return res.data.tag;
 }
 exports.uaEventTag = uaEventTag;
+/*********************************Create GA4 Tags**************************************/
+//GA4 Config Tag
+async function ga4ConfigTag(obj, tagName, trackType, measurementId, sendPageView, tagFiringOption, firingTriggerId, blockingTriggerId, fieldsToSet, userProperties, setupTagName, setupTagStop, teardownTagName, teardownTagStop, priorityValue, monitoringMetadataTagNameKey, monitoringMetadata) {
+    const ga4 = {
+        name: tagName,
+        type: 'gaawc',
+        parameter: [
+            { type: 'list', key: 'fieldsToSet', list: fieldsToSet },
+            { type: 'list', key: 'userProperties', list: userProperties },
+            { type: 'boolean', key: 'sendPageView', value: sendPageView },
+            { type: 'template', key: 'measurementId', value: measurementId }
+        ],
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId,
+        tagFiringOption: tagFiringOption
+    };
+    const ga4Advanced = {
+        name: tagName,
+        type: 'gaawc',
+        parameter: [
+            { type: 'list', key: 'fieldsToSet', list: fieldsToSet },
+            { type: 'list', key: 'userProperties', list: userProperties },
+            { type: 'boolean', key: 'sendPageView', value: sendPageView },
+            { type: 'template', key: 'measurementId', value: measurementId }
+        ],
+        priority: { type: 'integer', value: priorityValue },
+        setupTag: [
+            {
+                tagName: setupTagName,
+                stopOnSetupFailure: setupTagStop
+            }
+        ],
+        teardownTag: [
+            {
+                tagName: teardownTagName,
+                stopTeardownOnFailure: teardownTagStop
+            }
+        ],
+        tagFiringOption: tagFiringOption,
+        monitoringMetadata: monitoringMetadata,
+        monitoringMetadataTagNameKey: monitoringMetadataTagNameKey,
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId
+    };
+    const reqBody = trackType === 'standard' ? ga4
+        : trackType === 'advanced' ? ga4Advanced
+            : null;
+    const res = await gtm.accounts.containers.workspaces.tags.create({
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: reqBody
+    });
+    console.log(res.data);
+    return res.data.tag;
+}
+exports.ga4ConfigTag = ga4ConfigTag;
+//GA4 Event Tag
+async function ga4EventTag(obj, tagName, trackType, measurementId, eventName, eventParameters, userProperties, tagFiringOption, firingTriggerId, blockingTriggerId, setupTagName, setupTagStop, teardownTagName, teardownTagStop, priorityValue, monitoringMetadataTagNameKey, monitoringMetadata) {
+    const ga4 = {
+        name: tagName,
+        type: 'gaawe',
+        parameter: [
+            { type: 'tagReference', key: 'measurementId', value: measurementId },
+            { type: 'template', key: 'eventName', value: eventName },
+            { type: 'list', key: 'eventParameters', list: eventParameters },
+            { type: 'list', key: 'userProperties', list: userProperties }
+        ],
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId,
+        tagFiringOption: tagFiringOption
+    };
+    const ga4Advanced = {
+        name: tagName,
+        type: 'gaawe',
+        parameter: [
+            { type: 'tagReference', key: 'measurementId', value: measurementId },
+            { type: 'template', key: 'eventName', value: eventName },
+            { type: 'list', key: 'eventParameters', list: eventParameters },
+            { type: 'list', key: 'userProperties', list: userProperties }
+        ],
+        priority: { type: 'integer', value: priorityValue },
+        setupTag: [
+            {
+                tagName: setupTagName,
+                stopOnSetupFailure: setupTagStop
+            }
+        ],
+        teardownTag: [
+            {
+                tagName: teardownTagName,
+                stopTeardownOnFailure: teardownTagStop
+            }
+        ],
+        tagFiringOption: tagFiringOption,
+        monitoringMetadata: monitoringMetadata,
+        monitoringMetadataTagNameKey: monitoringMetadataTagNameKey,
+        firingTriggerId: firingTriggerId,
+        blockingTriggerId: blockingTriggerId
+    };
+    const reqBody = trackType === 'standard' ? ga4
+        : trackType === 'advanced' ? ga4Advanced
+            : null;
+    const res = await gtm.accounts.containers.workspaces.tags.create({
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: reqBody
+    });
+    console.log(res.data);
+    return res.data.tag;
+}
+exports.ga4EventTag = ga4EventTag;
 /*********************************List Tags**************************************/
 async function listTags(obj) {
     const res = await gtm.accounts.containers.workspaces.tags.list({
@@ -202,7 +312,7 @@ async function getTag(obj, tagId) {
     console.log('***********************************************');
     console.log(res.data);
     console.log('***********************************************');
-    console.log(res.data.monitoringMetadata);
+    console.log(res.data.parameter.find((id) => id.list).list.find((id) => id.map));
     console.log('***********************************************');
 }
 exports.getTag = getTag;

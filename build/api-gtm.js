@@ -129,7 +129,7 @@ async function runSample() {
                     {
                         'type': 'template',
                         'key': 'fieldName',
-                        'value': 'checkProtocolTask'
+                        'value': '{{Click Classes}}'
                     },
                     {
                         'type': 'template',
@@ -251,6 +251,7 @@ async function runSample() {
          */
         //createVariable(initialCred, 'GA Setting Test', 'gas','{{UA - Web Properties}}', 'auto',gasFieldsToSet,gasCustomDimensions, gasCustomMetric, gasContentGroup,'true','','false','false','','', 'true', 'true');
         //const variableName: string = 'test';
+        //gtmVariables
         //const variableId: number = await gtmVariables.find((id: any) => id.name === variableName).variableId;
         //Get Variable
         //getVariable(initialCred, variableId);
@@ -424,7 +425,7 @@ async function runSample() {
         //createTrigger(initialCred, 'test rr33 rosa','trigger group','all');
         /********************* Tags ***********************/
         const gtmTags = await tags_1.listTags(initialCred);
-        const tagName = 'test';
+        const tagName = 'event';
         const tagId = await gtmTags.find((id) => id.name === tagName).tagId;
         tags_1.getTag(initialCred, tagId);
         //deleteTag(initialCred,tagId)
@@ -438,13 +439,53 @@ async function runSample() {
                 { type: 'template', key: 'test3', value: 'test5' }
             ]
         };
+        const ga4FieldsToSet = [{
+                'type': 'map',
+                'map': [
+                    {
+                        'type': 'template',
+                        'key': 'name',
+                        'value': '{{Click Classes}}'
+                    },
+                    {
+                        'type': 'template',
+                        'key': 'value',
+                        'value': '{{JS - Empty Variable Function}}'
+                    }
+                ]
+            }];
+        const ga4UserProperties = [{
+                'type': 'map',
+                'map': [
+                    {
+                        'type': 'template',
+                        'key': 'name',
+                        'value': '123456'
+                    },
+                    {
+                        'type': 'template',
+                        'key': 'value',
+                        'value': '987'
+                    }
+                ]
+            }];
+        const metadata = { type: 'map', map: [{ type: 'template', key: '123', value: '456' }] };
         //uaPageviewTag(initialCred,'123','pageview',fireTagOn,blockTagOn, 'false','false','false','false','false','false','0','UA - Event - Page Load Time', true,'UA - Event - Email', true)
         //uaPageviewTag(initialCred, '456','pageview',fireTagOn,blockTagOn,'false',false,false,'false','false','false','false','false','0')
         //uaPageviewTag(initialCred, '987','pageview',fireTagOn,blockTagOn,'oncePerEvent')
         //uaPageviewTag(initialCred,'123','pageview advanced','override setting',fireTagOn,blockTagOn,'oncePerEvent',gasFieldsToSet,gasCustomDimensions,gasCustomMetric,gasContentGroup,'true','false','false','false','true','true', '0','UA - Event - Email', true,'UA - Event - File Download', true,'abc',tagMetaData)
         //uaEventTag(initialCred,'tester','event','standard',fireTagOn, blockTagOn,'oncePerEvent','{{Click ID}}','ho','hi',null,'false')
         //uaEventTag(initialCred,'tester','event','override setting',fireTagOn, blockTagOn,'oncePerEvent','{{Click ID}}','ho','hi',null,'false', gasFieldsToSet,gasCustomDimensions,gasCustomMetric,gasContentGroup,'true','false','false','false','true','false')
-        tags_1.uaEventTag(initialCred, 'tester', 'event advanced', 'standard', fireTagOn, blockTagOn, 'oncePerEvent', '{{Click ID}}', 'ho', 'hi', null, 'false', null, null, null, null, null, null, null, null, null, null, '0', 'UA - Event - Email', true, 'UA - Event - File Download', true, 'abc', tagMetaData);
+        //uaEventTag(initialCred,'tester','event advanced','standard',fireTagOn, blockTagOn,'oncePerEvent','{{Click ID}}','ho','hi',null,'false', null,null,null,null,null,null,null,null,null,null,'0','UA - Event - Email', true,'UA - Event - File Download', true,'abc',tagMetaData)
+        //ga4ConfigTag(initialCred,'123','advanced','G-E13N4N5ZM5','true', 'oncePerEvent',fireTagOn,blockTagOn,ga4FieldsToSet,ga4UserProperties,'test',false,'UA - Event - Email', true,'0','name', metadata)
+        const ga4EventParameters = {
+            type: 'map',
+            map: [
+                { type: 'template', key: 'name', value: '{{Click Classes}}' },
+                { type: 'template', key: 'value', value: '69' }
+            ]
+        };
+        tags_1.ga4EventTag(initialCred, '123', 'advanced', 'test', '123456', ga4EventParameters, ga4UserProperties, 'oncePerEvent', fireTagOn, blockTagOn, 'test', false, 'UA - Event - Email', true, '0', 'name', metadata);
     }
     catch (err) {
         console.log(err);
