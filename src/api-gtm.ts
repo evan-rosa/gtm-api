@@ -55,7 +55,11 @@ import {
     uaPageviewTag,
     uaEventTag,
     ga4ConfigTag,
-    ga4EventTag
+    ga4EventTag,
+    uaUpdatePageviewTag,
+    uaUpdateEventTag,
+    ga4UpdateConfigTag,
+    ga4UpdateEventTag
 } from '@gtmComponents/tags';
 
 import * as dotenv from 'dotenv';
@@ -551,7 +555,7 @@ async function runSample() {
 
     const gtmTags = await listTags(initialCred);
         
-    const tagName: string = 'event';
+    const tagName: string = 'tester';
     const tagId: number = await gtmTags.find((id: any) => id.name === tagName).tagId;
 
     getTag(initialCred, tagId)
@@ -619,7 +623,15 @@ async function runSample() {
       }
 
 
-    ga4EventTag(initialCred,'123','advanced','test','123456',ga4EventParameters,ga4UserProperties,'oncePerEvent',fireTagOn,blockTagOn,'test',false,'UA - Event - Email', true,'0','name', metadata)
+    //ga4EventTag(initialCred,'123','advanced','test','123456',ga4EventParameters,ga4UserProperties,'oncePerEvent',fireTagOn,blockTagOn,'test',false,'UA - Event - Email', true,'0','name', metadata)
+
+    //uaUpdatePageviewTag(initialCred,tagId,'tester',false,false,fireTagOn)
+
+    //uaUpdateEventTag(initialCred,tagId,'tester',false,false,'123','456','789','0','false',fireTagOn)
+
+    //ga4UpdateConfigTag(initialCred,tagId,'tester','advanced','G-E13N4N5ZM5','true',fireTagOn,null,'oncePerEvent',ga4FieldsToSet,ga4UserProperties,false,true,null,false,'test',true,'0',null,null)
+
+    ga4UpdateEventTag(initialCred, tagId,'tester',false,'test','Evan',ga4EventParameters,ga4UserProperties,fireTagOn)
 
 
 

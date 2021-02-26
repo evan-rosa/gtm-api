@@ -425,7 +425,7 @@ async function runSample() {
         //createTrigger(initialCred, 'test rr33 rosa','trigger group','all');
         /********************* Tags ***********************/
         const gtmTags = await tags_1.listTags(initialCred);
-        const tagName = 'event';
+        const tagName = 'tester';
         const tagId = await gtmTags.find((id) => id.name === tagName).tagId;
         tags_1.getTag(initialCred, tagId);
         //deleteTag(initialCred,tagId)
@@ -485,7 +485,11 @@ async function runSample() {
                 { type: 'template', key: 'value', value: '69' }
             ]
         };
-        tags_1.ga4EventTag(initialCred, '123', 'advanced', 'test', '123456', ga4EventParameters, ga4UserProperties, 'oncePerEvent', fireTagOn, blockTagOn, 'test', false, 'UA - Event - Email', true, '0', 'name', metadata);
+        //ga4EventTag(initialCred,'123','advanced','test','123456',ga4EventParameters,ga4UserProperties,'oncePerEvent',fireTagOn,blockTagOn,'test',false,'UA - Event - Email', true,'0','name', metadata)
+        //uaUpdatePageviewTag(initialCred,tagId,'tester',false,false,fireTagOn)
+        //uaUpdateEventTag(initialCred,tagId,'tester',false,false,'123','456','789','0','false',fireTagOn)
+        //ga4UpdateConfigTag(initialCred,tagId,'tester','advanced','G-E13N4N5ZM5','true',fireTagOn,null,'oncePerEvent',ga4FieldsToSet,ga4UserProperties,false,true,null,false,'test',true,'0',null,null)
+        tags_1.ga4UpdateEventTag(initialCred, tagId, 'tester', false, 'test', 'Evan', ga4EventParameters, ga4UserProperties, fireTagOn);
     }
     catch (err) {
         console.log(err);
