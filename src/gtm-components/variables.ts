@@ -16,43 +16,46 @@ interface varAuthDetails {
 
 //First Party Cookie
 export async function createFirstPartyCookie(obj:varAuthDetails, varName: string, cookieName: string, decodeCookie?: string, convertNullToValue?: string, convertUndefinedToValue?: string, convertTrueToValue?: string, convertFalseToValue?: string) {
+
+  const reqBody = {
+    "name": varName,
+    "type": 'k',
+    "parameter": [
+        {
+          "type": "template",
+          "key": "name",
+          "value": cookieName //cookieName
+        },
+        { 
+          type: 'boolean', 
+          key: 'decodeCookie', 
+          value: decodeCookie  //optional value - string true/false (If enabled, the cookie value will be URI-decoded, e.g., the cookie 'xxx%3Dyyy' would become 'xxx=yyy'.)
+        }
+      ],
+    "formatValue": {
+      "caseConversionType": 'lowercase',
+      "convertNullToValue": { 
+        type: 'template', 
+        value: convertNullToValue 
+      },
+      "convertUndefinedToValue": { 
+        type: 'template', 
+        value: convertUndefinedToValue 
+      },
+      "convertTrueToValue": { 
+        type: 'template', 
+        value: convertTrueToValue
+      },
+      "convertFalseToValue": { 
+        type: 'template', 
+        value: convertFalseToValue 
+      }
+    }
+  }  
+  
   const res = await gtm.accounts.containers.workspaces.variables.create({
     parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
-           requestBody: {
-            "name": varName,
-            "type": 'k',
-            "parameter": [
-                {
-                  "type": "template",
-                  "key": "name",
-                  "value": cookieName //cookieName
-                },
-                { 
-                  type: 'boolean', 
-                  key: 'decodeCookie', 
-                  value: decodeCookie  //optional value - string true/false (If enabled, the cookie value will be URI-decoded, e.g., the cookie 'xxx%3Dyyy' would become 'xxx=yyy'.)
-                }
-              ],
-            "formatValue": {
-              "caseConversionType": 'lowercase',
-              "convertNullToValue": { 
-                type: 'template', 
-                value: convertNullToValue 
-              },
-              "convertUndefinedToValue": { 
-                type: 'template', 
-                value: convertUndefinedToValue 
-              },
-              "convertTrueToValue": { 
-                type: 'template', 
-                value: convertTrueToValue
-              },
-              "convertFalseToValue": { 
-                type: 'template', 
-                value: convertFalseToValue 
-              }
-            }
-          }   
+           requestBody: reqBody
       });
 }
 

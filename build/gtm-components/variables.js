@@ -29,43 +29,44 @@ const gtmAcctID = process.env.GTM_ACCOUNT_ID;
 //Variable Types can be found here: https://developers.google.com/tag-manager/api/v2/variable-dictionary-reference
 //First Party Cookie
 async function createFirstPartyCookie(obj, varName, cookieName, decodeCookie, convertNullToValue, convertUndefinedToValue, convertTrueToValue, convertFalseToValue) {
-    const res = await gtm.accounts.containers.workspaces.variables.create({
-        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
-        requestBody: {
-            "name": varName,
-            "type": 'k',
-            "parameter": [
-                {
-                    "type": "template",
-                    "key": "name",
-                    "value": cookieName //cookieName
-                },
-                {
-                    type: 'boolean',
-                    key: 'decodeCookie',
-                    value: decodeCookie //optional value - string true/false (If enabled, the cookie value will be URI-decoded, e.g., the cookie 'xxx%3Dyyy' would become 'xxx=yyy'.)
-                }
-            ],
-            "formatValue": {
-                "caseConversionType": 'lowercase',
-                "convertNullToValue": {
-                    type: 'template',
-                    value: convertNullToValue
-                },
-                "convertUndefinedToValue": {
-                    type: 'template',
-                    value: convertUndefinedToValue
-                },
-                "convertTrueToValue": {
-                    type: 'template',
-                    value: convertTrueToValue
-                },
-                "convertFalseToValue": {
-                    type: 'template',
-                    value: convertFalseToValue
-                }
+    const reqBody = {
+        "name": varName,
+        "type": 'k',
+        "parameter": [
+            {
+                "type": "template",
+                "key": "name",
+                "value": cookieName //cookieName
+            },
+            {
+                type: 'boolean',
+                key: 'decodeCookie',
+                value: decodeCookie //optional value - string true/false (If enabled, the cookie value will be URI-decoded, e.g., the cookie 'xxx%3Dyyy' would become 'xxx=yyy'.)
+            }
+        ],
+        "formatValue": {
+            "caseConversionType": 'lowercase',
+            "convertNullToValue": {
+                type: 'template',
+                value: convertNullToValue
+            },
+            "convertUndefinedToValue": {
+                type: 'template',
+                value: convertUndefinedToValue
+            },
+            "convertTrueToValue": {
+                type: 'template',
+                value: convertTrueToValue
+            },
+            "convertFalseToValue": {
+                type: 'template',
+                value: convertFalseToValue
             }
         }
+    };
+    const res = await gtm.accounts.containers.workspaces.variables.create({
+        parent: 'accounts/' + gtmAcctID + '/containers/' + obj.containerId + '/workspaces/' + `${obj.workspaceNumber}`,
+        requestBody: reqBody
     });
 }
 exports.createFirstPartyCookie = createFirstPartyCookie;

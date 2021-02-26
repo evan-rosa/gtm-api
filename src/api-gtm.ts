@@ -631,7 +631,7 @@ async function runSample() {
 
     //ga4UpdateConfigTag(initialCred,tagId,'tester','advanced','G-E13N4N5ZM5','true',fireTagOn,null,'oncePerEvent',ga4FieldsToSet,ga4UserProperties,false,true,null,false,'test',true,'0',null,null)
 
-    ga4UpdateEventTag(initialCred, tagId,'tester',false,'test','Evan',ga4EventParameters,ga4UserProperties,fireTagOn)
+    //ga4UpdateEventTag(initialCred, tagId,'tester',false,'test','Evan',ga4EventParameters,ga4UserProperties,fireTagOn)
 
 
 

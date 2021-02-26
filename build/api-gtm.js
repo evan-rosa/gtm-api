@@ -489,7 +489,7 @@ async function runSample() {
         //uaUpdatePageviewTag(initialCred,tagId,'tester',false,false,fireTagOn)
         //uaUpdateEventTag(initialCred,tagId,'tester',false,false,'123','456','789','0','false',fireTagOn)
         //ga4UpdateConfigTag(initialCred,tagId,'tester','advanced','G-E13N4N5ZM5','true',fireTagOn,null,'oncePerEvent',ga4FieldsToSet,ga4UserProperties,false,true,null,false,'test',true,'0',null,null)
-        tags_1.ga4UpdateEventTag(initialCred, tagId, 'tester', false, 'test', 'Evan', ga4EventParameters, ga4UserProperties, fireTagOn);
+        //ga4UpdateEventTag(initialCred, tagId,'tester',false,'test','Evan',ga4EventParameters,ga4UserProperties,fireTagOn)
     }
     catch (err) {
         console.log(err);
